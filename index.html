@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Fleet Tracker"/>
+<title>Fleet Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg:#F7F6F3;--surface:#FFFFFF;--surface2:#F0EEE9;--border:#E4E1D9;--border2:#CCCAB8;
+    --text:#1A1915;--text2:#6B6960;--text3:#9B9A93;
+    --blue-bg:#EBF2FF;--blue:#1D4ED8;--blue-text:#1E3A8A;
+    --green-bg:#ECFDF5;--green:#059669;--green-text:#065F46;
+    --amber-bg:#FFFBEB;--amber:#D97706;--amber-text:#92400E;
+    --red-bg:#FEF2F2;--red:#DC2626;--red-text:#991B1B;
+    --purple-bg:#F5F3FF;--purple:#7C3AED;--purple-text:#4C1D95;
+    --teal-bg:#F0FDFA;--teal:#0D9488;--teal-text:#134E4A;
+    --radius:14px;--radius-sm:10px;--radius-xs:8px;
+    --shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  }
+  html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);font-size:15px;line-height:1.5;}
+  #app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;}
+
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .topbar-left h1{font-size:18px;font-weight:600;color:var(--text);}
+  .topbar-left p{font-size:11px;color:var(--text3);margin-top:1px;}
+  .topbar-btns{display:flex;gap:6px;align-items:center;}
+  .btn-sm{font-size:12px;font-weight:500;padding:6px 12px;border-radius:99px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;}
+  .btn-sm.dark{background:var(--text);color:#fff;border-color:var(--text);}
+  .btn-sm:active{opacity:0.7;}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+  .sync-dot.synced{background:var(--green);}
+  .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+  .sync-dot.error{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  .setup-banner{background:var(--amber-bg);border-bottom:1px solid #FDE68A;padding:12px 16px;font-size:13px;color:var(--amber-text);display:none;}
+  .setup-banner.show{display:block;}
+  .setup-banner strong{display:block;font-weight:600;margin-bottom:4px;}
+  .setup-banner input{width:100%;margin-top:8px;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid var(--amber);background:#fff;color:var(--text);}
+  .setup-banner button{margin-top:8px;font-size:12px;padding:7px 14px;border-radius:99px;background:var(--amber-text);color:#fff;border:none;cursor:pointer;}
+
+  .banner{padding:10px 16px;font-size:12px;font-weight:500;display:none;}
+  .banner.show{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .banner-warn{background:var(--amber-bg);color:var(--amber-text);}
+  .banner-info{background:var(--blue-bg);color:var(--blue-text);}
+  .banner button{font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid currentColor;background:transparent;cursor:pointer;color:inherit;}
+
+  .chips{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;text-align:center;min-width:72px;}
+  .chip .n{font-size:22px;font-weight:600;color:var(--text);}
+  .chip .l{font-size:10px;color:var(--text3);margin-top:1px;white-space:nowrap;}
+
+  .tabbar{background:var(--surface);border-bottom:1px solid var(--border);padding:4px 12px 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;}
+  .tabbar::-webkit-scrollbar{display:none;}
+  .tab{font-size:13px;font-weight:500;padding:8px 12px;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+  .tab.active{color:var(--text);border-bottom-color:var(--text);}
+
+  .content{flex:1;padding:14px 16px;}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+
+  .action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .action-btn{padding:14px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);font-size:14px;font-weight:500;color:var(--text);cursor:pointer;text-align:center;box-shadow:var(--shadow);}
+  .action-btn.primary{background:var(--text);color:#fff;border-color:var(--text);}
+  .action-btn:active{opacity:0.75;transform:scale(0.98);}
+
+  .section-hdr{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin:16px 0 8px;}
+  .section-hdr:first-child{margin-top:0;}
+
+  .van-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);transition:transform 0.1s;}
+  .van-card:active{transform:scale(0.99);background:var(--surface2);}
+  .card-top{display:flex;align-items:center;gap:10px;}
+  .card-id{font-size:17px;font-weight:600;color:var(--text);}
+  .badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;margin-left:auto;white-space:nowrap;letter-spacing:0.02em;}
+  .b-parts{background:var(--amber-bg);color:var(--amber-text);}
+  .b-inspection{background:var(--surface2);color:var(--text2);}
+  .b-ready{background:var(--green-bg);color:var(--green-text);}
+  .b-new{background:var(--red-bg);color:var(--red-text);}
+  .b-ai-pending{background:var(--purple-bg);color:var(--purple-text);}
+  .b-ai-approved{background:var(--teal-bg);color:var(--teal-text);}
+  .b-pickedup{background:var(--green-bg);color:var(--green-text);}
+  .card-sub{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.4;}
+  .card-loc{font-size:11px;color:var(--text3);margin-top:3px;}
+
+  .picked-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+  .van-card.open .picked-detail{display:block;}
+  .info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .info-row:last-child{border-bottom:none;}
+  .info-lbl{color:var(--text2);}
+  .info-val{font-weight:500;text-align:right;max-width:58%;color:var(--text);}
+  .info-val.ok{color:var(--green);}
+
+  .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
+
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;}
+  .overlay.open{display:flex;}
+  .sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-height:92vh;overflow-y:auto;}
+  .sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 16px;}
+  .sheet h2{font-size:17px;font-weight:600;margin-bottom:16px;}
+  .sheet-close{float:right;font-size:13px;color:var(--text2);cursor:pointer;padding:2px 6px;margin-top:-2px;}
+
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
+  .field input,.field select,.field textarea{width:100%;font-size:15px;padding:11px 13px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);background:var(--surface);}
+  .field textarea{resize:vertical;min-height:64px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .btn-full{width:100%;padding:14px;border-radius:var(--radius);font-size:15px;font-weight:600;border:none;cursor:pointer;margin-top:4px;font-family:'DM Sans',sans-serif;}
+  .btn-full.primary{background:var(--text);color:#fff;}
+  .btn-full.danger{background:transparent;border:1px solid var(--red);color:var(--red);margin-top:10px;}
+  .btn-full:active{opacity:0.8;}
+
+  .ai-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:13px;}
+  .ai-box-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+  .ai-toggle{display:flex;gap:8px;}
+  .ai-toggle button{flex:1;padding:10px 6px;border-radius:var(--radius-xs);font-size:13px;font-weight:500;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .ai-toggle button:active{opacity:0.7;}
+  .ai-toggle button.ai-pending{background:var(--purple-bg);color:var(--purple-text);border-color:var(--purple);}
+  .ai-toggle button.ai-approved{background:var(--teal-bg);color:var(--teal-text);border-color:var(--teal);}
+
+  .chk-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text);}
+  .chk-row:last-child{border-bottom:none;}
+  .chk-row input[type=checkbox]{width:20px;height:20px;flex-shrink:0;accent-color:var(--text);}
+  .chk-warn{font-size:12px;color:var(--red);font-weight:500;margin-top:8px;display:none;}
+
+  .report-out{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:12px;font-family:monospace;white-space:pre-wrap;color:var(--text);max-height:280px;overflow-y:auto;margin-top:12px;display:none;line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Fleet Tracker</h1>
+      <p id="save-status">Connecting to Google Drive...</p>
+    </div>
+    <div class="topbar-btns">
+      <div class="sync-dot syncing" id="sync-dot" title="Sync status"></div>
+      <button class="btn-sm" onclick="manualLoad()">Refresh</button>
+    </div>
+  </div>
+
+  <div class="setup-banner" id="setup-banner">
+    <strong>One-time setup required</strong>
+    Paste your Google Apps Script URL below to connect to Google Drive.
+    <input id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
+    <button onclick="saveScriptUrl()">Connect</button>
+  </div>
+
+  <div class="banner banner-warn" id="sync-error-banner">
+    <span id="sync-error-msg">Could not sync with Google Drive.</span>
+    <button onclick="manualLoad()">Retry</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="tabbar">
+    <div class="tab active" onclick="switchTab('shop',this)">In Shop</div>
+    <div class="tab" onclick="switchTab('ai',this)">Auto Int.</div>
+    <div class="tab" onclick="switchTab('ready',this)">Ready</div>
+    <div class="tab" onclick="switchTab('picked',this)">Picked Up</div>
+    <div class="tab" onclick="switchTab('report',this)">Report</div>
+  </div>
+
+  <div class="content">
+    <div class="tab-pane active" id="pane-shop">
+      <div class="action-row">
+        <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
+        <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
+      </div>
+      <div id="list-shop"></div>
+    </div>
+    <div class="tab-pane" id="pane-ai">
+      <div class="section-hdr">Pending Approval</div>
+      <div id="list-ai-pending"></div>
+      <div class="section-hdr">Approved</div>
+      <div id="list-ai-approved"></div>
+    </div>
+    <div class="tab-pane" id="pane-ready">
+      <div id="list-ready"></div>
+    </div>
+    <div class="tab-pane" id="pane-picked">
+      <div id="list-picked"></div>
+    </div>
+    <div class="tab-pane" id="pane-report">
+      <button class="action-btn primary" style="width:100%;margin-bottom:10px;" onclick="genReport()">Generate Element Update</button>
+      <button class="btn-sm" id="copy-btn" style="display:none;margin-bottom:8px;" onclick="copyReport()">Copy to clipboard</button>
+      <div class="report-out" id="report-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Drop-off modal -->
+<div class="overlay" id="modal-dropoff">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <span class="sheet-close" onclick="closeModal('modal-dropoff')">Cancel</span>
+    <h2>New Drop-off</h2>
+    <div class="field"><label>Van ID (last 4) or full VIN</label><input id="do-id" placeholder="e.g. 4890 or 3C6URVJG..."/></div>
+    <div class="two-col">
+      <div class="field"><label>Drop-off date</label><input id="do-date" type="date"/></div>
+      <div class="field"><label>Type</label><select id="do-type"><option value="last4">Last 4</option><option value="vin">Full VIN</option></select></div>
+    </div>
+    <div class="field"><label>Issue / work needed</label><input id="do-issue" placeholder="Describe the issue"/></div>
+    <div class="field"><label>Shop location</label><input id="do-loc" placeholder="e.g. Tanz – Troy"/></div>
+    <button class="btn-full primary" onclick="confirmDropoff()">Add Van</button>
+  </div>
+</div>
+
+<!-- Pickup modal -->
+<div class="overlay" id="modal-pickup">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <span class="sheet-close" onclick="closeModal('modal-pickup')">Cancel</span>
+    <h2>Pickup Checklist</h2>
+    <div class="field"><label>Van</label><select id="pu-van" style="width:100%;font-size:15px;padding:11px 13px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);"></select></div>
+    <div class="two-col">
+      <div class="field"><label>Pickup date</label><input id="pu-date" type="date"/></div>
+      <div class="field"><label>Picked up by</label><input id="pu-by" placeholder="Driver name"/></div>
+    </div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Dashboard lights — confirm all off</div>
+    <div class="chk-row"><input type="checkbox" id="c-cel"/><label for="c-cel">Check engine (CEL)</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-abs"/><label for="c-abs">ABS</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-tpms"/><label for="c-tpms">TPMS</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-oil"/><label for="c-oil">Oil pressure</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-bat"/><label for="c-bat">Battery / charging</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-trns"/><label for="c-trns">Transmission</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-airbag"/><label for="c-airbag">Airbag / SRS</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-brk"/><label for="c-brk">Brake warning</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-4wd"/><label for="c-4wd">Service / 4WD</label></div>
+    <div class="chk-row"><input type="checkbox" id="c-other"/><label for="c-other">No other warning lights</label></div>
+    <div class="chk-warn" id="chk-warn">All lights must be confirmed clear before pickup.</div>
+    <div class="field" style="margin-top:12px;"><label>Pickup notes</label><textarea id="pu-notes" placeholder="Any issues at pickup?"></textarea></div>
+    <button class="btn-full primary" onclick="confirmPickup()">Confirm Pickup</button>
+  </div>
+</div>
+
+<!-- Van edit modal -->
+<div class="overlay" id="modal-van">
+  <div class="sheet" id="modal-van-sheet"></div>
+</div>
+
+<script>
+const STATUS_OPTS=["New Drop Off","Parts Ordered","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","Ready for Pickup"];
+const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup'};
+const LS_URL_KEY='vanFleet_scriptUrl';
+const LS_CACHE_KEY='vanFleet_cache';
+
+let vans=[
+  {id:"4890",isVin:false,issue:"Sliding door issue, headlight condensation",status:"Parts Ordered",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"1497",isVin:false,issue:"Electrical / horn going off",status:"Parts Ordered",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"9557",isVin:false,issue:"Inspection",status:"Waiting – Inspection",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"5610",isVin:false,issue:"Hazards issue, recall",status:"Auto Integrate – Pending",aiStatus:"pending",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"7142",isVin:false,issue:"Wheel bearings, parking brake fault, TPMS, recall",status:"Auto Integrate – Pending",aiStatus:"pending",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"6965",isVin:false,issue:"Front brakes, rear door sensor",status:"Parts Ordered",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"5068",isVin:false,issue:"CEL / catalytic converter code",status:"Parts Ordered",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"4163",isVin:false,issue:"Shifter issues",status:"Parts Ordered",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"9251",isVin:false,issue:"Transmission service",status:"Auto Integrate – Pending",aiStatus:"pending",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"5229",isVin:false,issue:"Inspection",status:"Waiting – Inspection",aiStatus:"",location:"",pullIn:"",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+  {id:"3023",isVin:false,issue:"Inspection and recall",status:"Waiting – Inspection",aiStatus:"",location:"Tanz – Troy",pullIn:"Apr 6",partsOrdered:"",partsEtaDealer:"",partsEtaVendor:"",eta:"",waitingOn:"",tanzNotes:"Dropped off Apr 6",notes:"",pickedUp:false,pickupDate:"",pickupBy:"",dashClear:false,pickupNotes:""},
+];
+
+let scriptUrl = 'https://script.google.com/macros/s/AKfycbx-Z9ppFp-kawkG90Nn1381qO6jCqZKom0PflXSndm41HWWUBSfbCAhybYXcf06OSa4/exec';
+localStorage.setItem(LS_URL_KEY, scriptUrl);
+let saveTimer = null;
+
+function setSub(t){document.getElementById('save-status').textContent=t;}
+function setSyncDot(state){const d=document.getElementById('sync-dot');d.className='sync-dot '+state;}
+function showSyncError(msg){const b=document.getElementById('sync-error-banner');document.getElementById('sync-error-msg').textContent=msg||'Could not sync with Google Drive.';b.classList.add('show');}
+function hideSyncError(){document.getElementById('sync-error-banner').classList.remove('show');}
+
+function saveScriptUrl(){
+  const url=document.getElementById('script-url-input').value.trim();
+  if(!url||!url.startsWith('https://script.google.com')){alert('Please paste a valid Google Apps Script URL.');return;}
+  scriptUrl=url;localStorage.setItem(LS_URL_KEY,url);
+  document.getElementById('setup-banner').classList.remove('show');
+  setSub('Connecting...');loadFromDrive();
+}
+
+async function loadFromDrive(){
+  if(!scriptUrl){document.getElementById('setup-banner').classList.add('show');setSub('Setup required');setSyncDot('error');return;}
+  setSyncDot('syncing');setSub('Loading from Google Drive...');
+  try{
+    const res=await fetch(scriptUrl+'?action=load');
+    const json=await res.json();
+    if(json.success&&json.data&&json.data.vans&&json.data.vans.length){
+      vans=json.data.vans;
+      localStorage.setItem(LS_CACHE_KEY,JSON.stringify({vans,at:new Date().toISOString()}));
+    } else if(!json.success){
+      throw new Error(json.error||'Load failed');
+    }
+    setSyncDot('synced');setSub('Synced '+new Date().toLocaleTimeString());hideSyncError();render();
+  }catch(e){
+    setSyncDot('error');showSyncError('Could not reach Google Drive. Showing cached data.');
+    const cached=localStorage.getItem(LS_CACHE_KEY);
+    if(cached){try{const p=JSON.parse(cached);if(p.vans)vans=p.vans;}catch(e2){}}
+    setSub('Offline – cached data');render();
+  }
+}
+
+async function saveToDrive(){
+  if(!scriptUrl)return;
+  setSyncDot('syncing');setSub('Saving...');
+  const payload={v:3,at:new Date().toISOString(),vans};
+  localStorage.setItem(LS_CACHE_KEY,JSON.stringify(payload));
+  try{
+    const res=await fetch(scriptUrl,{method:'POST',body:JSON.stringify({action:'save',data:payload})});
+    const json=await res.json();
+    if(!json.success)throw new Error(json.error||'Save failed');
+    setSyncDot('synced');setSub('Saved to Drive '+new Date().toLocaleTimeString());hideSyncError();
+  }catch(e){
+    setSyncDot('error');showSyncError('Could not save to Google Drive. Changes saved locally.');setSub('Saved locally (Drive offline)');
+  }
+}
+
+function dirty(){
+  clearTimeout(saveTimer);
+  setSyncDot('syncing');setSub('Saving...');
+  saveTimer=setTimeout(saveToDrive,1500);
+}
+
+function manualLoad(){loadFromDrive();}
+
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');document.getElementById('pane-'+name).classList.add('active');
+}
+
+function openDropoff(){document.getElementById('do-id').value='';document.getElementById('do-date').value=today();document.getElementById('do-issue').value='';document.getElementById('do-loc').value='';document.getElementById('do-type').value='last4';openModal('modal-dropoff');}
+function confirmDropoff(){
+  const id=document.getElementById('do-id').value.trim();if(!id){alert('Please enter a Van ID or VIN.');return;}
+  const dt=document.getElementById('do-date').value;const fmt=dt?fmtDate(dt):'';
+  vans.unshift({id,isVin:document.getElementById('do-type').value==='vin',issue:document.getElementById('do-issue').value.trim(),status:'New Drop Off',aiStatus:'',location:document.getElementById('do-loc').value.trim(),pullIn:fmt,partsOrdered:'',partsEtaDealer:'',partsEtaVendor:'',eta:'',waitingOn:'',tanzNotes:'',notes:'',pickedUp:false,pickupDate:'',pickupBy:'',dashClear:false,pickupNotes:''});
+  closeModal('modal-dropoff');dirty();render();
+}
+
+function openPickup(){
+  const sel=document.getElementById('pu-van');sel.innerHTML='';
+  vans.forEach((v,i)=>{if(!v.pickedUp){const o=document.createElement('option');o.value=i;o.textContent=(v.isVin?'VIN ':'#')+v.id+(v.issue?' – '+v.issue.slice(0,28):'');sel.appendChild(o);}});
+  if(!sel.options.length){alert('No vans currently in shop.');return;}
+  document.getElementById('pu-date').value=today();document.getElementById('pu-by').value='';document.getElementById('pu-notes').value='';
+  ['cel','abs','tpms','oil','bat','trns','airbag','brk','4wd','other'].forEach(k=>{const el=document.getElementById('c-'+k);if(el)el.checked=false;});
+  document.getElementById('chk-warn').style.display='none';openModal('modal-pickup');
+}
+function confirmPickup(){
+  const keys=['cel','abs','tpms','oil','bat','trns','airbag','brk','4wd','other'];
+  if(!keys.every(k=>document.getElementById('c-'+k).checked)){document.getElementById('chk-warn').style.display='block';return;}
+  const idx=parseInt(document.getElementById('pu-van').value);
+  const dt=document.getElementById('pu-date').value;
+  vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:dt?fmtDateLong(dt):'',pickupBy:document.getElementById('pu-by').value.trim(),dashClear:true,pickupNotes:document.getElementById('pu-notes').value.trim()};
+  closeModal('modal-pickup');dirty();render();
+}
+
+function openVanModal(idx){
+  const v=vans[idx];const label=(v.isVin?'VIN ':'#')+v.id;
+  const isAI=v.status.startsWith('Auto Integrate');
+  const sheet=document.getElementById('modal-van-sheet');
+  sheet.innerHTML=`<div class="sheet-handle"></div>
+  <span class="sheet-close" onclick="closeModal('modal-van')">Done</span>
+  <h2>${label}</h2>
+  <div class="field"><label>Status</label>
+    <select id="v-status" onchange="handleStatusChange(${idx},this.value)" style="width:100%;font-size:15px;padding:11px 13px;border-radius:10px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);">
+      ${STATUS_OPTS.map(s=>`<option value="${s}"${s===v.status?' selected':''}>${s}</option>`).join('')}
+    </select>
+  </div>
+  <div id="ai-wrap" style="${isAI?'':'display:none'}">
+    <div class="ai-box">
+      <div class="ai-box-label">Auto Integrate Status</div>
+      <div class="ai-toggle">
+        <button id="ai-pend" class="${v.aiStatus==='pending'?'ai-pending':''}" onclick="setAI(${idx},'pending')">Pending Approval</button>
+        <button id="ai-appr" class="${v.aiStatus==='approved'?'ai-approved':''}" onclick="setAI(${idx},'approved')">Approved</button>
+      </div>
+    </div>
+  </div>
+  <div class="field"><label>Issue / work needed</label><input id="v-issue" value="${esc(v.issue)}"/></div>
+  <div class="two-col">
+    <div class="field"><label>Shop location</label><input id="v-loc" value="${esc(v.location)}"/></div>
+    <div class="field"><label>Pull-in date</label><input id="v-pullin" value="${esc(v.pullIn)}"/></div>
+  </div>
+  <div class="field"><label>Tanz notes</label><input id="v-tanz" value="${esc(v.tanzNotes)}"/></div>
+  <div class="two-col">
+    <div class="field"><label>Parts ordered</label><input id="v-parts" value="${esc(v.partsOrdered)}" placeholder="Y / N / partial"/></div>
+    <div class="field"><label>Est. completion</label><input id="v-eta" value="${esc(v.eta)}"/></div>
+  </div>
+  <div class="two-col">
+    <div class="field"><label>Parts ETA – dealer</label><input id="v-dealer" value="${esc(v.partsEtaDealer)}"/></div>
+    <div class="field"><label>Parts ETA – vendor</label><input id="v-vendor" value="${esc(v.partsEtaVendor)}"/></div>
+  </div>
+  <div class="field"><label>Waiting on</label><input id="v-waiting" value="${esc(v.waitingOn)}"/></div>
+  <div class="field"><label>Notes</label><textarea id="v-notes">${esc(v.notes)}</textarea></div>
+  <button class="btn-full primary" onclick="saveVan(${idx})">Save Changes</button>
+  <button class="btn-full danger" onclick="deleteVan(${idx})">Remove Van</button>`;
+  openModal('modal-van');
+}
+
+function handleStatusChange(idx,val){
+  const wrap=document.getElementById('ai-wrap');const isAI=val.startsWith('Auto Integrate');
+  wrap.style.display=isAI?'':'none';
+  if(val==='Auto Integrate – Pending')setAI(idx,'pending',true);
+  if(val==='Auto Integrate – Approved')setAI(idx,'approved',true);
+}
+function setAI(idx,val,skipSave){
+  const pb=document.getElementById('ai-pend');const ab=document.getElementById('ai-appr');
+  if(pb)pb.className=val==='pending'?'ai-pending':'';
+  if(ab)ab.className=val==='approved'?'ai-approved':'';
+  vans[idx].aiStatus=val;
+  vans[idx].status=val==='approved'?'Auto Integrate – Approved':'Auto Integrate – Pending';
+  if(!skipSave)dirty();
+}
+function saveVan(idx){
+  const fields={issue:'v-issue',location:'v-loc',pullIn:'v-pullin',tanzNotes:'v-tanz',partsOrdered:'v-parts',eta:'v-eta',partsEtaDealer:'v-dealer',partsEtaVendor:'v-vendor',waitingOn:'v-waiting',notes:'v-notes'};
+  Object.entries(fields).forEach(([k,id])=>{const el=document.getElementById(id);if(el)vans[idx][k]=el.value;});
+  const st=document.getElementById('v-status');if(st)vans[idx].status=st.value;
+  closeModal('modal-van');dirty();render();
+}
+function deleteVan(idx){if(confirm('Remove this van?')){vans.splice(idx,1);closeModal('modal-van');dirty();render();}}
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+
+function mkCard(v,i){
+  const d=document.createElement('div');d.className='van-card';
+  const label=(v.isVin?'VIN ':'#')+v.id;
+  const loc=v.location?`<div class="card-loc">${v.location}${v.pullIn?' · '+v.pullIn:''}</div>`:'';
+  d.innerHTML=`<div class="card-top"><span class="card-id">${label}</span><span class="badge ${SC[v.status]||'b-inspection'}">${v.status}</span></div><div class="card-sub">${v.issue||'No issue entered'}</div>${loc}`;
+  d.onclick=()=>openVanModal(i);return d;
+}
+
+function render(){
+  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup');
+  const aip=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Pending');
+  const aia=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Approved');
+  const ready=vans.filter(v=>!v.pickedUp&&v.status==='Ready for Pickup');
+  const picked=vans.filter(v=>v.pickedUp);
+
+  document.getElementById('chips').innerHTML=`
+    <div class="chip"><div class="n">${shop.length}</div><div class="l">In Shop</div></div>
+    <div class="chip"><div class="n">${aip.length+aia.length}</div><div class="l">Auto Int.</div></div>
+    <div class="chip"><div class="n">${ready.length}</div><div class="l">Ready</div></div>
+    <div class="chip"><div class="n">${picked.length}</div><div class="l">Picked Up</div></div>`;
+
+  const idxMap=new Map(vans.map((v,i)=>[v,i]));
+  const fill=(elId,list)=>{const el=document.getElementById(elId);el.innerHTML='';if(!list.length){el.innerHTML='<div class="empty">None</div>';return;}list.forEach(v=>el.appendChild(mkCard(v,idxMap.get(v))));};
+  fill('list-shop',shop);fill('list-ai-pending',aip);fill('list-ai-approved',aia);fill('list-ready',ready);
+
+  const pl=document.getElementById('list-picked');pl.innerHTML='';
+  if(!picked.length){pl.innerHTML='<div class="empty">No pickups recorded yet</div>';}
+  else picked.forEach(v=>{const d=document.createElement('div');d.className='van-card';const label=(v.isVin?'VIN ':'#')+v.id;d.innerHTML=`<div class="card-top"><span class="card-id">${label}</span><span class="badge b-pickedup">Picked Up</span></div><div class="card-sub">${v.issue||''}</div><div class="picked-detail"><div class="info-row"><span class="info-lbl">Pickup date</span><span class="info-val">${v.pickupDate||'—'}</span></div><div class="info-row"><span class="info-lbl">Picked up by</span><span class="info-val">${v.pickupBy||'—'}</span></div><div class="info-row"><span class="info-lbl">Dashboard lights</span><span class="info-val ok">All clear</span></div><div class="info-row"><span class="info-lbl">Notes</span><span class="info-val">${v.pickupNotes||'None'}</span></div></div>`;d.onclick=()=>d.classList.toggle('open');pl.appendChild(d);});
+}
+
+function genReport(){
+  const date=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const line='─'.repeat(36);let out=`Element Fleet – Van Status Update\n${date}\n${line}`;
+  const shop=vans.filter(v=>!v.pickedUp);const picked=vans.filter(v=>v.pickedUp);
+  if(shop.length){out+='\n\nVANS IN SHOP / QUEUE';shop.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id||'—'}\nIssue: ${v.issue||'—'}\nStatus: ${v.status}`;if(v.status.startsWith('Auto Integrate'))out+=`\nAuto Integrate: ${v.aiStatus==='approved'?'Approved':'Pending approval'}`;out+=`\nLocation: ${v.location||'—'}`;if(v.pullIn)out+=`\nPull-in (Tanz): ${v.pullIn}`;if(v.tanzNotes)out+=`\nTanz notes: ${v.tanzNotes}`;out+=`\nParts ordered: ${v.partsOrdered||'—'}\nParts ETA – dealer: ${v.partsEtaDealer||'—'}\nParts ETA – vendor: ${v.partsEtaVendor||'—'}\nEst. completion: ${v.eta||'—'}\nWaiting on: ${v.waitingOn||'—'}`;if(v.notes)out+=`\nNotes: ${v.notes}`;out+=`\n${line}`;});}
+  if(picked.length){out+='\n\nPICKED UP';picked.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id||'—'} – ${v.issue||''}\nPickup date: ${v.pickupDate||'—'}\nPicked up by: ${v.pickupBy||'—'}\nDashboard lights: All clear – confirmed`;if(v.pickupNotes)out+=`\nNotes: ${v.pickupNotes}`;out+=`\n${line}`;});}
+  const box=document.getElementById('report-out');box.textContent=out;box.style.display='block';
+  document.getElementById('copy-btn').style.display='inline-block';
+  navigator.clipboard.writeText(out).catch(()=>{});
+}
+function copyReport(){navigator.clipboard.writeText(document.getElementById('report-out').textContent).catch(()=>{});}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtDate(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtDateLong(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+// Init
+loadFromDrive();
+</script>
+</body>
+</html>
