@@ -87,6 +87,10 @@
   .b-pickedup{background:var(--green-bg);color:var(--green-text);}
   .b-ford{background:#EBF2FF;color:#1E3A8A;}
   .b-aplena{background:#FDF4FF;color:#6B21A8;}
+  .b-grounded{background:#FEF2F2;color:#991B1B;}
+  .search-bar{padding:12px 16px 4px;background:var(--surface);border-bottom:1px solid var(--border);}
+  .search-bar input{width:100%;font-size:15px;padding:10px 14px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;}
+  .search-bar input:focus{border-color:var(--text);background:var(--surface);}
   .card-sub{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.4;}
   .card-loc{font-size:11px;color:var(--text3);margin-top:3px;}
 
@@ -169,6 +173,11 @@
     <div class="tab" onclick="switchTab('ready',this)">Ready</div>
     <div class="tab" onclick="switchTab('picked',this)">Picked Up</div>
     <div class="tab" onclick="switchTab('report',this)">Report</div>
+    <div class="tab" onclick="switchTab('search',this)">Search</div>
+  </div>
+
+  <div class="search-bar">
+    <input type="search" id="global-search" placeholder="Search any VIN or van number..." oninput="globalSearch(this.value)" />
   </div>
 
   <div class="content">
@@ -196,6 +205,14 @@
     </div>
     <div class="tab-pane" id="pane-picked">
       <div id="list-picked"></div>
+    </div>
+    <div class="tab-pane" id="pane-search">
+      <div style="margin-bottom:12px;">
+        <input id="search-input" type="search" placeholder="Search VIN or van ID..." 
+          style="width:100%;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;"
+          oninput="doSearch(this.value)" />
+      </div>
+      <div id="search-results"><div class="empty">Type a VIN or van number to search</div></div>
     </div>
     <div class="tab-pane" id="pane-report">
       <button class="action-btn primary" style="width:100%;margin-bottom:10px;" onclick="genReport()">Generate Element Update</button>
@@ -255,9 +272,18 @@
   <div class="sheet" id="modal-van-sheet"></div>
 </div>
 
+<!-- Global search overlay -->
+<div id="search-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:40;overflow-y:auto;padding:14px 16px;max-width:480px;margin:0 auto;">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+    <span style="font-size:13px;color:var(--text2);font-weight:500;" id="search-count"></span>
+    <button class="btn-sm" style="margin-left:auto;" onclick="clearSearch()">Clear</button>
+  </div>
+  <div id="search-overlay-results"></div>
+</div>
+
 <script>
-const STATUS_OPTS=["New Drop Off","Parts Ordered","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup"];
-const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena'};
+const STATUS_OPTS=["New Drop Off","Parts Ordered","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup","Grounded"];
+const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena','Grounded':'b-grounded'};
 const LS_URL_KEY='vanFleet_scriptUrl';
 const LS_CACHE_KEY='vanFleet_cache';
 
@@ -468,6 +494,7 @@ function switchTab(name,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');document.getElementById('pane-'+name).classList.add('active');
+  if(name==='search'){setTimeout(()=>{const si=document.getElementById('search-input');if(si)si.focus();},100);}
 }
 
 function openDropoff(){document.getElementById('do-id').value='';document.getElementById('do-date').value=today();document.getElementById('do-issue').value='';document.getElementById('do-loc').value='';document.getElementById('do-type').value='last4';openModal('modal-dropoff');}
@@ -570,11 +597,12 @@ function mkCard(v,i){
 }
 
 function render(){
-  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty');
+  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded');
   const aip=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Pending');
   const aia=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Approved');
   const ford=vans.filter(v=>!v.pickedUp&&v.status==='At Ford – Warranty');
   const aplena=vans.filter(v=>!v.pickedUp&&v.status==='In Aplena – Warranty');
+  const grounded=vans.filter(v=>!v.pickedUp&&v.status==='Grounded');
   const ready=vans.filter(v=>!v.pickedUp&&v.status==='Ready for Pickup');
   const picked=vans.filter(v=>v.pickedUp);
 
@@ -583,6 +611,7 @@ function render(){
     <div class="chip"><div class="n">${aip.length+aia.length}</div><div class="l">Auto Int.</div></div>
     <div class="chip"><div class="n">${ford.length+aplena.length}</div><div class="l">Warranty</div></div>
     <div class="chip"><div class="n">${ready.length}</div><div class="l">Ready</div></div>
+    <div class="chip"><div class="n">${grounded.length}</div><div class="l">Grounded</div></div>
     <div class="chip"><div class="n">${picked.length}</div><div class="l">Picked Up</div></div>`;
 
   const idxMap=new Map(vans.map((v,i)=>[v,i]));
@@ -593,6 +622,36 @@ function render(){
   const pl=document.getElementById('list-picked');pl.innerHTML='';
   if(!picked.length){pl.innerHTML='<div class="empty">No pickups recorded yet</div>';}
   else picked.forEach(v=>{const d=document.createElement('div');d.className='van-card';const label=(v.isVin?'VIN ':'#')+v.id;d.innerHTML=`<div class="card-top"><span class="card-id">${label}</span><span class="badge b-pickedup">Picked Up</span></div><div class="card-sub">${v.issue||''}</div><div class="picked-detail"><div class="info-row"><span class="info-lbl">Pickup date</span><span class="info-val">${v.pickupDate||'—'}</span></div><div class="info-row"><span class="info-lbl">Picked up by</span><span class="info-val">${v.pickupBy||'—'}</span></div><div class="info-row"><span class="info-lbl">Dashboard lights</span><span class="info-val ok">All clear</span></div><div class="info-row"><span class="info-lbl">Notes</span><span class="info-val">${v.pickupNotes||'None'}</span></div></div>`;d.onclick=()=>d.classList.toggle('open');pl.appendChild(d);});
+}
+
+function globalSearch(q){
+  const term=q.trim().toLowerCase();
+  const overlay=document.getElementById('search-overlay');
+  const results=document.getElementById('search-overlay-results');
+  const count=document.getElementById('search-count');
+  if(!term){overlay.style.display='none';return;}
+  overlay.style.display='block';
+  const idxMap=new Map(vans.map((v,i)=>[v,i]));
+  const found=vans.filter(v=>v.id.toLowerCase().includes(term));
+  count.textContent=found.length+' result'+(found.length!==1?'s':'');
+  results.innerHTML='';
+  if(!found.length){results.innerHTML='<div class="empty">No vans found</div>';return;}
+  found.forEach(v=>results.appendChild(mkCard(v,idxMap.get(v))));
+}
+function clearSearch(){
+  document.getElementById('global-search').value='';
+  document.getElementById('search-overlay').style.display='none';
+}
+
+function doSearch(q){
+  const box=document.getElementById('search-results');
+  const term=q.trim().toLowerCase();
+  if(!term){box.innerHTML='<div class="empty">Type a VIN or van number to search</div>';return;}
+  const idxMap=new Map(vans.map((v,i)=>[v,i]));
+  const results=vans.filter(v=>v.id.toLowerCase().includes(term));
+  if(!results.length){box.innerHTML='<div class="empty">No vans found</div>';return;}
+  box.innerHTML='';
+  results.forEach(v=>{const i=idxMap.get(v);box.appendChild(mkCard(v,i));});
 }
 
 function genReport(){
@@ -616,4 +675,3 @@ loadFromDrive();
 </script>
 </body>
 </html>
-
