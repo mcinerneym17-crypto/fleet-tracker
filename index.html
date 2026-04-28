@@ -68,7 +68,6 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 .b-ford{background:var(--blue-bg);color:var(--blue-text);}
 .b-aplena{background:var(--indigo-bg);color:var(--indigo-text);}
 .b-grounded{background:var(--red-bg);color:var(--red-text);}
-.b-recall{background:#FFF1F2;color:#BE123C;}
 .card-sub{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.4;}
 .card-loc{font-size:10px;color:var(--text3);margin-top:2px;}
 .picked-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);}
@@ -179,7 +178,6 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
     <div class="nav-item" onclick="go('warranty',this)" data-p="warranty"><span class="nav-icon">🏭</span>Warranty<span class="nav-count" id="nc-warranty">0</span></div>
     <div class="nav-item" onclick="go('ready',this)" data-p="ready"><span class="nav-icon">✅</span>Ready for Pickup<span class="nav-count" id="nc-ready">0</span></div>
     <div class="nav-item" onclick="go('grounded',this)" data-p="grounded"><span class="nav-icon">🚫</span>Grounded<span class="nav-count" id="nc-grounded">0</span></div>
-    <div class="nav-item" onclick="go('recall',this)" data-p="recall"><span class="nav-icon">⚠️</span>Recall<span class="nav-count" id="nc-recall">0</span></div>
     <div class="nav-item" onclick="go('picked',this)" data-p="picked"><span class="nav-icon">🚐</span>Picked Up<span class="nav-count" id="nc-picked">0</span></div>
     <div class="nav-item" onclick="go('report',this)" data-p="report"><span class="nav-icon">📋</span>Report</div>
   </nav>
@@ -219,7 +217,6 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
     </div>
     <div class="pane" id="pane-ready"><div class="cards-grid" id="list-ready"></div></div>
     <div class="pane" id="pane-grounded"><div class="cards-grid" id="list-grounded"></div></div>
-    <div class="pane" id="pane-recall"><div class="cards-grid" id="list-recall"></div></div>
     <div class="pane" id="pane-picked"><div class="cards-grid" id="list-picked"></div></div>
     <div class="pane" id="pane-report">
       <div style="max-width:580px;">
@@ -301,9 +298,9 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 <script>
 const SU='https://script.google.com/macros/s/AKfycbx-Z9ppFp-kawkG90Nn1381qO6jCqZKom0PflXSndm41HWWUBSfbCAhybYXcf06OSa4/exec';
 const LC='vanFleet_v5';
-const SO=["New Drop Off","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup","Grounded","Recall"];
-const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','In Progress':'b-inprogress','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena','Grounded':'b-grounded','Recall':'b-recall'};
-const TT={'shop':'In Shop','inprogress':'In Progress','ai':'Auto Integrate','warranty':'Warranty','ready':'Ready for Pickup','grounded':'Grounded','recall':'Recall','picked':'Picked Up','report':'Report'};
+const SO=["New Drop Off","Parts Ordered","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup","Grounded"];
+const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','In Progress':'b-inprogress','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena','Grounded':'b-grounded'};
+const TT={'shop':'In Shop','inprogress':'In Progress','ai':'Auto Integrate','warranty':'Warranty','ready':'Ready for Pickup','grounded':'Grounded','picked':'Picked Up','report':'Report'};
 function vn(id,iV,issue,status,aiS,loc,pullIn,notes,pu,pd){return{id,isVin:iV,issue:issue||'',status:status||'New Drop Off',aiStatus:aiS||'',location:loc||'',pullIn:pullIn||'',partsOrdered:'',partsEtaDealer:'',partsEtaVendor:'',eta:'',waitingOn:'',tanzNotes:'',notes:notes||'',pickedUp:!!pu,pickupDate:pd||'',pickupBy:'',dashClear:!!pu,pickupNotes:''};}
 let vans=[
   vn("4890",false,"Sliding door issue, headlight condensation","Parts Ordered"),
@@ -502,13 +499,19 @@ function openVanModal(idx){
     <div class="field"><label>Shop location</label><input id="v-lo" value="${esc(v.location)}"/></div>
     <div class="field"><label>Pull-in date</label><input id="v-pi" value="${esc(v.pullIn)}"/></div>
   </div>
-  <div class="field"><label>Tech notes</label><input id="v-tz" value="${esc(v.tanzNotes)}"/></div>
-  <div class="field"><label>Parts ordered</label><input id="v-po" value="${esc(v.partsOrdered)}" placeholder="Y / N / partial"/></div>
+  <div class="field"><label>Tanz notes</label><input id="v-tz" value="${esc(v.tanzNotes)}"/></div>
+  <div class="two-col">
+    <div class="field"><label>Parts ordered</label><input id="v-po" value="${esc(v.partsOrdered)}" placeholder="Y / N / partial"/></div>
+    <div class="field"><label>Est. completion</label><input id="v-et" value="${esc(v.eta)}"/></div>
+  </div>
+  <div class="two-col">
+    <div class="field"><label>Parts ETA – dealer</label><input id="v-pd" value="${esc(v.partsEtaDealer)}"/></div>
+    <div class="field"><label>Parts ETA – vendor</label><input id="v-pv" value="${esc(v.partsEtaVendor)}"/></div>
+  </div>
   <div class="field"><label>Waiting on</label><input id="v-wo" value="${esc(v.waitingOn)}"/></div>
   <div class="field"><label>Notes</label><textarea id="v-no">${esc(v.notes)}</textarea></div>
   <button class="btn-full primary" onclick="saveVan(${idx})">Save Changes</button>
   <button class="btn-full" style="margin-top:7px;background:#FFF7ED;color:#C2410C;border:1px solid #FB923C;" onclick="moveToInProgress(${idx})">Move to In Progress</button>
-  <button class="btn-full" style="margin-top:7px;background:#FFF1F2;color:#BE123C;border:1px solid #FDA4AF;" onclick="moveToRecall(${idx})">Move to Recall</button>
   <button class="btn-full green" style="margin-top:7px;" onclick="qPickup(${idx})">Mark as Picked Up</button>
   <button class="btn-full danger" style="margin-top:7px;" onclick="delVan(${idx})">Remove Van</button>`;
   openModal('modal-van');
@@ -525,17 +528,13 @@ function setAI(idx,val,skip){
   if(!skip)dirty();
 }
 function saveVan(idx){
-  const f={issue:'v-is',location:'v-lo',pullIn:'v-pi',tanzNotes:'v-tz',partsOrdered:'v-po',waitingOn:'v-wo',notes:'v-no'};
+  const f={issue:'v-is',location:'v-lo',pullIn:'v-pi',tanzNotes:'v-tz',partsOrdered:'v-po',eta:'v-et',partsEtaDealer:'v-pd',partsEtaVendor:'v-pv',waitingOn:'v-wo',notes:'v-no'};
   Object.entries(f).forEach(([k,id])=>{const e=document.getElementById(id);if(e)vans[idx][k]=e.value;});
   const st=document.getElementById('v-st');if(st)vans[idx].status=st.value;
   closeModal('modal-van');dirty();render();
 }
 function moveToInProgress(idx){
   vans[idx].status='In Progress';
-  closeModal('modal-van');dirty();render();
-}
-function moveToRecall(idx){
-  vans[idx].status='Recall';
   closeModal('modal-van');dirty();render();
 }
 function qPickup(idx){
@@ -550,11 +549,11 @@ function closeModal(id){document.getElementById(id).classList.remove('open');doc
 
 function mkCard(v,i){
   const d=document.createElement('div');d.className='van-card';
-  const lbl=v.isVin?'...'+v.id.slice(-8):'#'+v.id;
+  const lbl=(v.isVin?'VIN ':'#')+v.id;
   const loc=v.location?`<div class="card-loc">${v.location}${v.pullIn?' · '+v.pullIn:''}</div>`:'';
   const nt=v.notes?`<div class="card-loc" style="color:var(--text2);margin-top:2px;">${v.notes}</div>`:'';
   if(v.pickedUp){
-    d.innerHTML=`<div class="card-top"><span class="card-id" title="${v.id}">${lbl}</span><span class="badge b-pickedup">Picked Up</span></div>
+    d.innerHTML=`<div class="card-top"><span class="card-id">${lbl}</span><span class="badge b-pickedup">Picked Up</span></div>
     <div class="card-sub">${v.issue||''}</div>
     <div class="picked-detail">
       <div class="info-row"><span class="info-lbl">Pickup date</span><span class="info-val">${v.pickupDate||'—'}</span></div>
@@ -564,7 +563,7 @@ function mkCard(v,i){
     </div>`;
     d.onclick=()=>d.classList.toggle('open');
   }else{
-    d.innerHTML=`<div class="card-top"><span class="card-id" title="${v.id}">${lbl}</span><span class="badge ${SC[v.status]||'b-inspection'}">${v.status}</span></div>
+    d.innerHTML=`<div class="card-top"><span class="card-id">${lbl}</span><span class="badge ${SC[v.status]||'b-inspection'}">${v.status}</span></div>
     <div class="card-sub">${v.issue||'No issue entered'}</div>${loc}${nt}`;
     d.onclick=()=>openVanModal(i);
   }
@@ -572,19 +571,18 @@ function mkCard(v,i){
 }
 
 function render(){
-  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded'&&v.status!=='In Progress'&&v.status!=='Recall');
+  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded'&&v.status!=='In Progress');
   const inprogress=vans.filter(v=>!v.pickedUp&&v.status==='In Progress');
   const aip=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Pending');
   const aia=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Approved');
   const ford=vans.filter(v=>!v.pickedUp&&v.status==='At Ford – Warranty');
   const aplena=vans.filter(v=>!v.pickedUp&&v.status==='In Aplena – Warranty');
   const grounded=vans.filter(v=>!v.pickedUp&&v.status==='Grounded');
-  const recall=vans.filter(v=>!v.pickedUp&&v.status==='Recall');
   const ready=vans.filter(v=>!v.pickedUp&&v.status==='Ready for Pickup');
   const picked=vans.filter(v=>v.pickedUp);
   const aiT=aip.length+aia.length;const warT=ford.length+aplena.length;
 
-  [['shop',shop.length],['inprogress',inprogress.length],['ai',aiT],['warranty',warT],['ready',ready.length],['grounded',grounded.length],['recall',recall.length],['picked',picked.length]].forEach(([k,n])=>{
+  [['shop',shop.length],['inprogress',inprogress.length],['ai',aiT],['warranty',warT],['ready',ready.length],['grounded',grounded.length],['picked',picked.length]].forEach(([k,n])=>{
     const nc=document.getElementById('nc-'+k);if(nc)nc.textContent=n;
     const bc=document.getElementById('bc-'+k);if(bc){bc.textContent=n;bc.className='bnav-badge'+(n>0?' show':'');}
     const bw=document.getElementById('bc-war');if(bw&&k==='warranty'){bw.textContent=n;bw.className='bnav-badge'+(n>0?' show':'');}
@@ -597,13 +595,12 @@ function render(){
     <div class="stat-card"><div class="num">${warT}</div><div class="lbl">Warranty</div></div>
     <div class="stat-card"><div class="num">${ready.length}</div><div class="lbl">Ready</div></div>
     <div class="stat-card"><div class="num">${grounded.length}</div><div class="lbl">Grounded</div></div>
-    <div class="stat-card"><div class="num">${recall.length}</div><div class="lbl">Recall</div></div>
     <div class="stat-card"><div class="num">${picked.length}</div><div class="lbl">Picked Up</div></div>`;
 
   const im=new Map(vans.map((v,i)=>[v,i]));
   const fill=(id,list)=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';if(!list.length){el.innerHTML='<div class="empty">None</div>';return;}list.forEach(v=>el.appendChild(mkCard(v,im.get(v))));};
   fill('list-shop',shop);fill('list-inprogress',inprogress);fill('list-aip',aip);fill('list-aia',aia);
-  fill('list-ford',ford);fill('list-aplena',aplena);fill('list-grounded',grounded);fill('list-recall',recall);fill('list-ready',ready);fill('list-picked',picked);
+  fill('list-ford',ford);fill('list-aplena',aplena);fill('list-grounded',grounded);fill('list-ready',ready);fill('list-picked',picked);
   checkDups();
 }
 
