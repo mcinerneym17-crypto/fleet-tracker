@@ -1,34 +1,654 @@
-Fleet Tracker
-McInerney Automotive
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Fleet Tracker"/>
+<title>McInerney Fleet Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#F5F4F1;--surface:#FFF;--surface2:#EEECEA;--border:#E2DFD8;--border2:#C8C5BB;
+  --text:#18170F;--text2:#6A6860;--text3:#9A9890;
+  --green-bg:#ECFDF5;--green:#059669;--green-text:#065F46;
+  --amber-bg:#FFFBEB;--amber:#D97706;--amber-text:#92400E;
+  --red-bg:#FEF2F2;--red:#DC2626;--red-text:#991B1B;
+  --purple-bg:#F5F3FF;--purple:#7C3AED;--purple-text:#4C1D95;
+  --teal-bg:#F0FDFA;--teal:#0D9488;--teal-text:#134E4A;
+  --blue-bg:#EBF2FF;--blue-text:#1E3A8A;
+  --indigo-bg:#EEF2FF;--indigo-text:#3730A3;
+  --shadow:0 1px 3px rgba(0,0,0,0.07);
+}
+html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);font-size:15px;line-height:1.5;overflow:hidden;}
+#layout{display:flex;height:100vh;}
+/* SIDEBAR */
+#sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+#sb-logo{padding:18px 16px 12px;border-bottom:1px solid var(--border);}
+#sb-logo h1{font-size:15px;font-weight:600;}
+#sb-logo p{font-size:10px;color:var(--text3);}
+#sb-sync{display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.sync-dot.synced{background:var(--green);}
+.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
+.sync-dot.error{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+#sb-search{padding:7px 9px;border-bottom:1px solid var(--border);}
+#sb-search input{width:100%;font-size:12px;padding:7px 11px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;}
+#sb-search input:focus{border-color:var(--text);}
+#sb-nav{flex:1;overflow-y:auto;padding:5px 0;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);}
+.nav-item:hover{background:var(--surface2);}
+.nav-item.active{background:var(--surface2);color:var(--text);}
+.nav-icon{font-size:14px;width:16px;text-align:center;}
+.nav-count{margin-left:auto;font-size:10px;font-weight:600;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:99px;}
+.nav-item.active .nav-count{background:var(--text);color:#fff;}
+#sb-actions{padding:9px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;}
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative;}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+#topbar h2{font-size:15px;font-weight:600;flex:1;}
+#content-area{flex:1;overflow-y:auto;padding:16px 18px;}
+.pane{display:none;} .pane.active{display:block;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+.van-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:13px;cursor:pointer;box-shadow:var(--shadow);}
+.van-card:hover{box-shadow:0 3px 10px rgba(0,0,0,0.09);}
+.card-top{display:flex;align-items:center;gap:8px;}
+.card-id{font-size:13px;font-weight:600;}
+.badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px;margin-left:auto;white-space:nowrap;}
+.b-parts{background:var(--amber-bg);color:var(--amber-text);}
+.b-inspection{background:var(--surface2);color:var(--text2);}
+.b-inprogress{background:#FFF7ED;color:#C2410C;}
+.b-ready{background:var(--green-bg);color:var(--green-text);}
+.b-new{background:var(--red-bg);color:var(--red-text);}
+.b-ai-pending{background:var(--purple-bg);color:var(--purple-text);}
+.b-ai-approved{background:var(--teal-bg);color:var(--teal-text);}
+.b-pickedup{background:var(--green-bg);color:var(--green-text);}
+.b-ford{background:var(--blue-bg);color:var(--blue-text);}
+.b-aplena{background:var(--indigo-bg);color:var(--indigo-text);}
+.b-grounded{background:var(--red-bg);color:var(--red-text);}
+.card-sub{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.4;}
+.card-loc{font-size:10px;color:var(--text3);margin-top:2px;}
+.picked-detail{display:none;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);}
+.van-card.open .picked-detail{display:block;}
+.info-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.info-row:last-child{border-bottom:none;}
+.info-lbl{color:var(--text2);}
+.info-val{font-weight:500;text-align:right;max-width:60%;}
+.info-val.ok{color:var(--green);}
+.section-hdr{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.section-hdr:first-child{margin-top:0;}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+.action-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.action-btn{padding:8px 16px;border-radius:9px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:500;color:var(--text);cursor:pointer;box-shadow:var(--shadow);}
+.action-btn.primary{background:var(--text);color:#fff;border-color:var(--text);}
+.action-btn:hover{opacity:0.9;}
+.stats-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 14px;flex:1;min-width:70px;box-shadow:var(--shadow);}
+.stat-card .num{font-size:22px;font-weight:600;}
+.stat-card .lbl{font-size:9px;color:var(--text3);margin-top:1px;}
+.banner{padding:8px 18px;font-size:11px;font-weight:500;display:none;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
+.banner.show{display:flex;}
+.banner-warn{background:var(--amber-bg);color:var(--amber-text);border-bottom:1px solid #FDE68A;}
+.banner button{font-size:10px;padding:2px 8px;border-radius:99px;border:1px solid currentColor;background:transparent;cursor:pointer;color:inherit;}
+.btn-sm{font-size:11px;font-weight:500;padding:5px 11px;border-radius:99px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;}
+.btn-sm:hover{background:var(--surface2);}
+.btn-sm.dark{background:var(--text);color:#fff;border-color:var(--text);}
+/* SEARCH OVERLAY */
+#search-overlay{display:none;position:absolute;inset:0;background:var(--surface);z-index:100;flex-direction:column;}
+#search-overlay.open{display:flex;}
+#search-top{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;}
+#search-top input{flex:1;font-size:14px;padding:8px 12px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;}
+#search-top input:focus{border-color:var(--text);}
+#search-count{padding:7px 14px 0;font-size:11px;color:var(--text3);}
+#search-results{flex:1;overflow-y:auto;padding:10px 14px;}
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+@media(min-width:768px){.overlay{align-items:center;}.sheet{border-radius:14px;max-width:540px;max-height:84vh;}}
+.sheet{background:var(--surface);border-radius:18px 18px 0 0;padding:20px 16px 34px;width:100%;max-height:91vh;overflow-y:auto;}
+.sheet-handle{width:32px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 14px;}
+.sheet h2{font-size:16px;font-weight:600;margin-bottom:14px;}
+.sheet-close{float:right;font-size:12px;color:var(--text2);cursor:pointer;padding:2px 6px;border-radius:5px;}
+.sheet-close:hover{background:var(--surface2);}
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;font-size:14px;padding:9px 11px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:inherit;outline:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--text);background:var(--surface);}
+.field textarea{resize:vertical;min-height:56px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn-full{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;margin-top:5px;font-family:inherit;}
+.btn-full.primary{background:var(--text);color:#fff;}
+.btn-full.green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green);}
+.btn-full.danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+.btn-full:hover{opacity:0.9;}
+.ai-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:11px;}
+.ai-box-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
+.ai-toggle{display:flex;gap:6px;}
+.ai-toggle button{flex:1;padding:8px 5px;border-radius:7px;font-size:12px;font-weight:500;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;}
+.ai-toggle button.ai-pending{background:var(--purple-bg);color:var(--purple-text);border-color:var(--purple);}
+.ai-toggle button.ai-approved{background:var(--teal-bg);color:var(--teal-text);border-color:var(--teal);}
+.chk-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.chk-row:last-child{border-bottom:none;}
+.chk-row input[type=checkbox]{width:17px;height:17px;flex-shrink:0;accent-color:var(--text);}
+.chk-warn{font-size:11px;color:var(--red);font-weight:500;margin-top:7px;display:none;}
+.report-out{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;font-size:11px;font-family:monospace;white-space:pre-wrap;color:var(--text);max-height:380px;overflow-y:auto;margin-top:9px;display:none;line-height:1.6;}
+/* MOBILE */
+#bottom-nav{display:none;background:var(--surface);border-top:1px solid var(--border);}
+.bnav-items{display:flex;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 2px 8px;cursor:pointer;font-size:9px;font-weight:500;color:var(--text3);gap:2px;position:relative;}
+.bnav-item.active{color:var(--text);}
+.bnav-icon{font-size:17px;line-height:1;}
+.bnav-badge{position:absolute;top:3px;right:calc(50% - 17px);font-size:8px;font-weight:700;background:var(--red);color:#fff;border-radius:99px;padding:0 3px;min-width:13px;text-align:center;display:none;}
+.bnav-badge.show{display:block;}
+#mob-topbar{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 13px;align-items:center;gap:8px;}
+#mob-topbar h1{font-size:14px;font-weight:600;flex:1;}
+#mob-topbar p{font-size:9px;color:var(--text3);}
+@media(max-width:767px){
+  #layout{flex-direction:column;}
+  #sidebar{display:none;}
+  #topbar{display:none;}
+  #mob-topbar{display:flex;}
+  #bottom-nav{display:block;}
+  #content-area{padding:11px 13px 5px;}
+  .cards-grid{grid-template-columns:1fr;}
+  .action-row{gap:7px;}
+  .action-btn{flex:1;text-align:center;padding:12px 8px;}
+  .stats-bar{gap:6px;}
+  .stat-card{padding:8px 9px;min-width:55px;}
+  .stat-card .num{font-size:18px;}
+}
+</style>
+</head>
+<body>
+<div id="layout">
+<div id="sidebar">
+  <div id="sb-logo"><h1>Fleet Tracker</h1><p>McInerney Automotive</p></div>
+  <div id="sb-sync">
+    <div class="sync-dot syncing" id="sync-dot-d"></div>
+    <span id="status-d" style="flex:1;">Connecting...</span>
+    <button class="btn-sm" style="font-size:10px;padding:2px 7px;" onclick="manualLoad()">Refresh</button>
+  </div>
+  <div id="sb-search"><input type="search" placeholder="Search VIN or van..." oninput="openSearch(this.value)" id="desk-srch"/></div>
+  <nav id="sb-nav">
+    <div class="nav-item active" onclick="go('shop',this)" data-p="shop"><span class="nav-icon">🔧</span>In Shop<span class="nav-count" id="nc-shop">0</span></div>
+    <div class="nav-item" onclick="go('inprogress',this)" data-p="inprogress"><span class="nav-icon">🔨</span>In Progress<span class="nav-count" id="nc-inprogress">0</span></div>
+    <div class="nav-item" onclick="go('ai',this)" data-p="ai"><span class="nav-icon">⚙️</span>Auto Integrate<span class="nav-count" id="nc-ai">0</span></div>
+    <div class="nav-item" onclick="go('warranty',this)" data-p="warranty"><span class="nav-icon">🏭</span>Warranty<span class="nav-count" id="nc-warranty">0</span></div>
+    <div class="nav-item" onclick="go('ready',this)" data-p="ready"><span class="nav-icon">✅</span>Ready for Pickup<span class="nav-count" id="nc-ready">0</span></div>
+    <div class="nav-item" onclick="go('grounded',this)" data-p="grounded"><span class="nav-icon">🚫</span>Grounded<span class="nav-count" id="nc-grounded">0</span></div>
+    <div class="nav-item" onclick="go('picked',this)" data-p="picked"><span class="nav-icon">🚐</span>Picked Up<span class="nav-count" id="nc-picked">0</span></div>
+    <div class="nav-item" onclick="go('report',this)" data-p="report"><span class="nav-icon">📋</span>Report</div>
+  </nav>
+  <div id="sb-actions">
+    <button class="action-btn primary" onclick="openDropoff()" style="width:100%;text-align:center;font-size:12px;padding:8px;">+ New Drop-off</button>
+    <button class="action-btn" onclick="openPickup()" style="width:100%;text-align:center;font-size:12px;padding:8px;">Mark Picked Up</button>
+  </div>
+</div>
 
-Connecting...
-Refresh
+<div id="main">
+  <div id="mob-topbar">
+    <div style="flex:1;"><h1>Fleet Tracker</h1><p id="status-m">Connecting...</p></div>
+    <div class="sync-dot syncing" id="sync-dot-m"></div>
+    <button class="btn-sm" onclick="manualLoad()">Refresh</button>
+    <button class="btn-sm" onclick="openSearch('')" style="font-size:14px;padding:3px 7px;border:none;background:none;">🔍</button>
+  </div>
+  <div id="topbar"><h2 id="topbar-title">In Shop</h2></div>
+  <div class="banner banner-warn" id="err-banner"><span id="err-msg"></span><button onclick="manualLoad()">Retry</button></div>
+  <div class="banner banner-warn" id="dup-banner" style="cursor:pointer;" onclick="openDupModal()"><span id="dup-msg"></span><button onclick="openDupModal()">Review</button></div>
+  <div id="content-area">
+    <div class="pane active" id="pane-shop">
+      <div class="action-row" id="mob-actions">
+        <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
+        <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
+      </div>
+      <div class="stats-bar" id="stats-bar"></div>
+      <div class="cards-grid" id="list-shop"></div>
+    </div>
+    <div class="pane" id="pane-inprogress"><div class="cards-grid" id="list-inprogress"></div></div>
+    <div class="pane" id="pane-ai">
+      <div class="section-hdr">Pending Approval</div><div class="cards-grid" id="list-aip"></div>
+      <div class="section-hdr">Approved</div><div class="cards-grid" id="list-aia"></div>
+    </div>
+    <div class="pane" id="pane-warranty">
+      <div class="section-hdr">At Ford – Warranty</div><div class="cards-grid" id="list-ford"></div>
+      <div class="section-hdr">In Aplena – Warranty</div><div class="cards-grid" id="list-aplena"></div>
+    </div>
+    <div class="pane" id="pane-ready"><div class="cards-grid" id="list-ready"></div></div>
+    <div class="pane" id="pane-grounded"><div class="cards-grid" id="list-grounded"></div></div>
+    <div class="pane" id="pane-picked"><div class="cards-grid" id="list-picked"></div></div>
+    <div class="pane" id="pane-report">
+      <div style="max-width:580px;">
+        <div class="action-row"><button class="action-btn primary" onclick="genReport()">Generate Element Update</button><button class="btn-sm" id="copy-btn" style="display:none;" onclick="copyReport()">Copy</button></div>
+        <div class="report-out" id="report-out"></div>
+      </div>
+    </div>
+  </div>
+  <div id="search-overlay">
+    <div id="search-top">
+      <button onclick="closeSearch()" style="font-size:19px;padding:1px 7px;border:none;background:none;cursor:pointer;color:var(--text2);">←</button>
+      <input type="search" id="srch-inp" placeholder="Search VIN or van number..." oninput="doSearch(this.value)"/>
+      <button class="btn-sm" onclick="closeSearch()">Done</button>
+    </div>
+    <div id="search-count"></div>
+    <div id="search-results" class="cards-grid"></div>
+  </div>
+</div>
 
-🔧
-In Shop
-0
-🔨
-In Progress
-0
-⚙️
-Auto Integrate
-0
-🏭
-Warranty
-0
-✅
-Ready for Pickup
-0
-🚫
-Grounded
-0
-🚐
-Picked Up
-0
-📋
-Report
-+ New Drop-off
-Mark Picked Up
-In Shop
-+ New Drop-off
-Mark Picked Up
+<div id="bottom-nav">
+  <div class="bnav-items">
+    <div class="bnav-item active" onclick="go('shop',this)" data-p="shop"><span class="bnav-badge" id="bc-shop"></span><span class="bnav-icon">🔧</span><span>Shop</span></div>
+    <div class="bnav-item" onclick="go('inprogress',this)" data-p="inprogress"><span class="bnav-badge" id="bc-inprogress"></span><span class="bnav-icon">🔨</span><span>In Prog.</span></div>
+    <div class="bnav-item" onclick="go('ai',this)" data-p="ai"><span class="bnav-badge" id="bc-ai"></span><span class="bnav-icon">⚙️</span><span>Auto</span></div>
+    <div class="bnav-item" onclick="go('warranty',this)" data-p="warranty"><span class="bnav-badge" id="bc-war"></span><span class="bnav-icon">🏭</span><span>Warranty</span></div>
+    <div class="bnav-item" onclick="go('ready',this)" data-p="ready"><span class="bnav-badge" id="bc-ready"></span><span class="bnav-icon">✅</span><span>Ready</span></div>
+    <div class="bnav-item" onclick="go('picked',this)" data-p="picked"><span class="bnav-badge" id="bc-picked"></span><span class="bnav-icon">🚐</span><span>Picked Up</span></div>
+    <div class="bnav-item" onclick="go('report',this)" data-p="report"><span class="bnav-icon">📋</span><span>Report</span></div>
+  </div>
+</div>
+</div>
+
+<div class="overlay" id="modal-dropoff"><div class="sheet">
+  <div class="sheet-handle"></div><span class="sheet-close" onclick="closeModal('modal-dropoff')">✕ Cancel</span>
+  <h2>New Drop-off</h2>
+  <div class="field"><label>Van ID (last 4) or full VIN</label><input id="do-id" placeholder="e.g. 4890 or 3C6URVJG..."/></div>
+  <div class="two-col">
+    <div class="field"><label>Drop-off date</label><input id="do-date" type="date"/></div>
+    <div class="field"><label>Type</label><select id="do-type"><option value="last4">Last 4</option><option value="vin">Full VIN</option></select></div>
+  </div>
+  <div class="field"><label>Issue / work needed</label><input id="do-issue" placeholder="Describe the issue"/></div>
+  <div class="field"><label>Shop location</label><input id="do-loc" placeholder="e.g. Tanz – Troy"/></div>
+  <button class="btn-full primary" onclick="confirmDropoff()">Add Van</button>
+</div></div>
+
+<div class="overlay" id="modal-pickup"><div class="sheet">
+  <div class="sheet-handle"></div><span class="sheet-close" onclick="closeModal('modal-pickup')">✕ Cancel</span>
+  <h2>Pickup Checklist</h2>
+  <div class="field"><label>Van</label><select id="pu-van" style="width:100%;font-size:14px;padding:9px 11px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);"></select></div>
+  <div class="two-col">
+    <div class="field"><label>Pickup date</label><input id="pu-date" type="date"/></div>
+    <div class="field"><label>Picked up by</label><input id="pu-by" placeholder="Driver name"/></div>
+  </div>
+  <div style="font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;">Dashboard lights — confirm all off</div>
+  <div class="chk-row"><input type="checkbox" id="c-cel"/><label for="c-cel">Check engine (CEL)</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-abs"/><label for="c-abs">ABS</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-tpms"/><label for="c-tpms">TPMS</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-oil"/><label for="c-oil">Oil pressure</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-bat"/><label for="c-bat">Battery / charging</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-trns"/><label for="c-trns">Transmission</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-airbag"/><label for="c-airbag">Airbag / SRS</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-brk"/><label for="c-brk">Brake warning</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-4wd"/><label for="c-4wd">Service / 4WD</label></div>
+  <div class="chk-row"><input type="checkbox" id="c-other"/><label for="c-other">No other warning lights</label></div>
+  <div class="chk-warn" id="chk-warn">All lights must be confirmed clear before pickup.</div>
+  <div class="field" style="margin-top:10px;"><label>Pickup notes</label><textarea id="pu-notes" placeholder="Any issues at pickup?"></textarea></div>
+  <button class="btn-full primary" onclick="confirmPickup()">Confirm Pickup</button>
+</div></div>
+
+<div class="overlay" id="modal-van"><div class="sheet" id="van-sheet"></div></div>
+
+<div class="overlay" id="modal-dup"><div class="sheet">
+  <div class="sheet-handle"></div><span class="sheet-close" onclick="closeModal('modal-dup')">✕</span>
+  <h2>Duplicate VINs Found</h2>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">These appear as both a last-4 and a full VIN. Choose which to keep.</p>
+  <div id="dup-list"></div>
+</div></div>
+
+<script>
+const SU='https://script.google.com/macros/s/AKfycbx-Z9ppFp-kawkG90Nn1381qO6jCqZKom0PflXSndm41HWWUBSfbCAhybYXcf06OSa4/exec';
+const LC='vanFleet_v5';
+const SO=["New Drop Off","Parts Ordered","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup","Grounded"];
+const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','In Progress':'b-inprogress','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena','Grounded':'b-grounded'};
+const TT={'shop':'In Shop','inprogress':'In Progress','ai':'Auto Integrate','warranty':'Warranty','ready':'Ready for Pickup','grounded':'Grounded','picked':'Picked Up','report':'Report'};
+function vn(id,iV,issue,status,aiS,loc,pullIn,notes,pu,pd){return{id,isVin:iV,issue:issue||'',status:status||'New Drop Off',aiStatus:aiS||'',location:loc||'',pullIn:pullIn||'',partsOrdered:'',partsEtaDealer:'',partsEtaVendor:'',eta:'',waitingOn:'',tanzNotes:'',notes:notes||'',pickedUp:!!pu,pickupDate:pd||'',pickupBy:'',dashClear:!!pu,pickupNotes:''};}
+let vans=[
+  vn("4890",false,"Sliding door issue, headlight condensation","Parts Ordered"),
+  vn("1497",false,"Electrical / horn going off","Parts Ordered"),
+  vn("9557",false,"Inspection","Waiting – Inspection"),
+  vn("5610",false,"Hazards issue, recall","Auto Integrate – Pending","pending"),
+  vn("7142",false,"Wheel bearings, parking brake fault, TPMS, recall","Auto Integrate – Pending","pending"),
+  vn("6965",false,"Front brakes, rear door sensor","Parts Ordered"),
+  vn("5068",false,"CEL / catalytic converter code","Parts Ordered"),
+  vn("4163",false,"Shifter issues","Parts Ordered"),
+  vn("9251",false,"Transmission service","Auto Integrate – Pending","pending"),
+  vn("5229",false,"Inspection","Waiting – Inspection"),
+  vn("3023",false,"Inspection and recall","Waiting – Inspection","","Tanz – Troy","Apr 6","Dropped off Apr 6"),
+  vn("3C6URVJG0KE541793",true,"","Auto Integrate – Pending","pending","","","Waiting on Transmission 3/10/26"),
+  vn("3C6TRVDG1KE516893",true,"","Auto Integrate – Pending","pending","","3/9/26","Inspected 03/09/26, waiting on approval AI"),
+  vn("3C6URVJG6KE561787",true,"","Auto Integrate – Pending","pending","","","Waiting on AI approval"),
+  vn("3C6URVJG6KE544908",true,"","Auto Integrate – Pending","pending","","","Needs warranty Trans"),
+  vn("3C6TRVDG2JE161084",true,"","Auto Integrate – Pending","pending","","","Double check work"),
+  vn("3C6URVJG6LE145386",true,"","Auto Integrate – Approved","approved","","","Approved needs work"),
+  vn("3C6TRVDG4KE515074",true,"","Auto Integrate – Pending","pending","","","Waiting on AI approval"),
+  vn("3C6TRVDG2KE519186",true,"","Auto Integrate – Approved","approved","","","Approved needs work"),
+  vn("3C6URVJG9KE544630",true,"","Auto Integrate – Pending","pending","","","Waiting approval"),
+  vn("3C6MRVJG6NE112226",true,"","Waiting – Inspection","","","3/9/26","Inspected 3/9/26"),
+  vn("WD4PF0CD9KT006656",true,"","Auto Integrate – Pending","pending","","3/30/26","Inspected 3/30/26, waiting AI approval"),
+  vn("3C6URVJG7KE551267",true,"","Waiting – Inspection"),
+  vn("3C6URVJG5KE561649",true,"","Waiting – Inspection"),
+  vn("3C6URVJG1LE128458",true,"","Waiting – Inspection"),
+  vn("3C6MRVJGXNE113086",true,"","Waiting – Inspection","","","4/7/26","Inspected 4/7/26"),
+  vn("3C6MRVJG8NE112213",true,"","Parts Ordered"),vn("3C6URVJG8KE560169",true,"","Parts Ordered"),
+  vn("3C6TRVDG2KE520810",true,"","Parts Ordered"),vn("3C6MRVJG2NE112188",true,"","Parts Ordered"),
+  vn("3C6MRVJGXME536720",true,"","Parts Ordered"),vn("3C6TRVDG8KE520763",true,"","Parts Ordered"),
+  vn("3C6TRVDG6KE516873",true,"","Parts Ordered"),vn("3C6MRVJG9NE112236",true,"","Parts Ordered"),
+  vn("3C6URVJG3KE564291",true,"","Parts Ordered"),vn("3C6URVJGXKE558181",true,"","Parts Ordered"),
+  vn("3C6URVJG4LE108477",true,"","Parts Ordered"),vn("3C6URVJG0KE561798",true,"","Parts Ordered"),
+  vn("3C6LRVDG9RE111584",true,"","Parts Ordered"),vn("3C6MRVJG8ME563348",true,"","Parts Ordered"),
+  vn("3C7WRVMG2NE141223",true,"","Parts Ordered","","","","Waiting parts"),
+  vn("1FDDF6P88MKA78515",true,"","Parts Ordered","","","4/3/26"),
+  vn("3C7MRVMG8NE117105",true,"","Parts Ordered"),vn("1FDDF6P83MKA69933",true,"","Parts Ordered"),
+  vn("3C6MRVJG6ME562991",true,"","At Ford – Warranty","","","","Sent 3/10/26"),
+  vn("3C7WRVMG5NE126977",true,"","At Ford – Warranty","","","","Sent 3/10/26"),
+  vn("3C6MRVJG1ME549341",true,"","At Ford – Warranty","","","","Has not been sent yet"),
+  vn("36CTRVDG2KE514800",true,"","Ready for Pickup","","","3/10/26"),
+  vn("3C6TRVDGXKE516925",true,"","Ready for Pickup","","","3/10/26"),
+  vn("3C6URVJG1LE113040",true,"","Ready for Pickup","","","3/10/26","Grounded van recall only"),
+  vn("3C6URVJG3KE548916",true,"","Ready for Pickup","","","3/10/26"),
+  vn("3C6TRVDG4KE519075",true,"","Ready for Pickup","","","3/13/26"),
+  vn("3C6URVJG4KE556278",true,"","Ready for Pickup"),vn("3C6URVJG8LE108174",true,"","Ready for Pickup"),
+  vn("3C6YRVJG1KE564323",true,"","Ready for Pickup"),vn("3C6URVJG6KE561675",true,"","Ready for Pickup"),
+  vn("3C6URVJG6LE145384",true,"","Ready for Pickup"),
+  vn("3C6URVJG3KE548754",true,"","Ready for Pickup","","","4/6/26"),
+  vn("3C6MRVJG9ME535932",true,"","Ready for Pickup","","","4/7/26"),
+  vn("3C6TRVDG5JE160852",true,"","Picked Up","","","","",true,"3/10/26"),vn("3C6URVJG5LE117592",true,"","Picked Up","","","","",true,"3/10/26"),
+  vn("3C6LRVDF8RE107574",true,"","Picked Up","","","","",true,"3/10/26"),vn("3C6URVJG1KE549028",true,"","Picked Up","","","","",true,"3/11/26"),
+  vn("3C6URVJG9KE548936",true,"","Picked Up","","","","",true,"3/12/26"),vn("3C6URVJG8KE551410",true,"","Picked Up","","","","",true,"3/12/26"),
+  vn("LKA47504",true,"","Picked Up","","","","",true,"3/12/26"),vn("3C6MRVJG6ME570993",true,"","Picked Up","","","","",true,"3/12/26"),
+  vn("3C6URVJGXLE117801",true,"","Picked Up","","","","",true,"3/13/26"),vn("3C7WRVMG3NE117237",true,"","Picked Up","","","","",true,"3/13/26"),
+  vn("1FTYR3XM3KKB74140",true,"","Picked Up","","","","",true,"3/17/26"),vn("3C6URVJG1LE112485",true,"","Picked Up","","","","",true,"3/17/26"),
+  vn("3C6TRVDG7KE520673",true,"","Picked Up","","","","",true,"3/17/26"),vn("3C6URVJG0LE124563",true,"","Picked Up","","","","",true,"3/18/26"),
+  vn("1FTYR3XM0KKA97579",true,"","Picked Up","","","","",true,"3/18/26"),vn("3C6LRVDG2RE107215",true,"","Picked Up","","","","",true,"3/19/26"),
+  vn("1FTY3XM1KKA99258",true,"","Picked Up","","","","",true,"3/20/26"),vn("3C6URVJG2LE108171",true,"","Picked Up","","","","",true,"3/19/26"),
+  vn("3C7WRVMG1NE117012",true,"","Picked Up","","","","",true,""),vn("WD4PF0CD6KP066189",true,"","Picked Up","","","","",true,"3/16/26"),
+  vn("1FDDF6P81MKA83393",true,"","Picked Up","","","","",true,""),vn("3C6TRVDG4KE521716",true,"","Picked Up","","","","",true,""),
+  vn("3C6URVJG0KE558125",true,"","Picked Up","","","","",true,"3/20/26"),vn("3C6TRVDG7KE515022",true,"","Picked Up","","","","",true,"3/20/26"),
+  vn("3C6URVJG5LE112926",true,"","Picked Up","","","","",true,"3/20/26"),vn("1f65f5kn1load1546",true,"","Picked Up","","","","",true,""),
+  vn("1FTBR3X88MKA83117",true,"","Picked Up","","","","",true,"3/20/26"),vn("3C6URVJG0KE561767",true,"","Picked Up","","","","",true,"3/23/26"),
+  vn("3C6TRVDG1KE514951",true,"","Picked Up","","","","",true,"3/23/26"),vn("3C6TRVDG9KE515068",true,"","Picked Up","","","","",true,"3/23/26"),
+  vn("WD4PF0CD2KP092501",true,"","Picked Up","","","","",true,"3/23/26"),vn("WD4PF0CD5KP057645",true,"","Picked Up","","","","",true,"3/23/26"),
+  vn("3C6URVJG4KE561898",true,"","Picked Up","","","","",true,"3/23/26"),vn("3C6TRVDG3LE161272",true,"","Picked Up","","","","",true,"3/23/26"),
+  vn("3C6URVJG4KE553669",true,"","Picked Up","","","","",true,"3/23/26"),vn("3C6URVJG9KE549035",true,"","Picked Up","","","","",true,"3/23/26"),
+  vn("3C6URVJG3LE128493",true,"","Picked Up","","","","",true,"3/23/26"),vn("3C6URVJG2KE541746",true,"","Picked Up","","","","",true,"3/24/26"),
+  vn("3C6URVJG4KE548794",true,"","Picked Up","","","","",true,"3/24/26"),vn("WD4PF0CD7KP039843",true,"","Picked Up","","","","",true,"3/24/26"),
+  vn("3C6MRVJG4ME556378",true,"","Picked Up","","","","",true,"3/24/26"),vn("1FTYR3XM8KKB49847",true,"","Picked Up","","","","",true,"3/24/26"),
+  vn("3C6URVJG6LE117942",true,"","Picked Up","","","","",true,"3/25/26"),vn("1FDDF6P87MKA17138",true,"","Picked Up","","","","",true,"3/25/26"),
+  vn("3C6URVJG2KE563973",true,"","Picked Up","","","","",true,"3/26/26"),vn("1FTBR3X84LKA28811",true,"","Picked Up","","","","",true,"3/30/26"),
+  vn("1FTBR3X85LKA72624",true,"","Picked Up","","","","",true,"3/30/26"),vn("3CTRVDG1KE520619",true,"","Picked Up","","","","",true,"3/31/26"),
+  vn("3C6MRVJG2NE113230",true,"","Picked Up","","","","",true,"3/31/26"),vn("3C6MRVJG7NE112607",true,"","Picked Up","","","","",true,"4/1/26"),
+  vn("3C6URVJG2KE545229",true,"","Picked Up","","","","",true,"4/1/26"),vn("3C6URVJG4LE124890",true,"","Picked Up","","","","",true,"4/1/26"),
+  vn("3C6TRVDG3KE516975",true,"","Picked Up","","","","",true,"4/1/26"),vn("3C6URVJG8LE145063",true,"","Picked Up","","","","",true,"4/1/26"),
+  vn("LE129393",true,"","Picked Up","","","","",true,"4/1/26"),vn("3C6LRVDG9SE515586",true,"","Picked Up","","","","",true,"4/3/26"),
+  vn("3C6MRVJG8NE113264",true,"","Picked Up","","","","",true,"4/6/26"),vn("3C6URVJG0LE108377",true,"","Picked Up","","","","",true,"4/6/26"),
+  vn("3C6URVJG9KE555580",true,"","Picked Up","","","","",true,"4/7/26"),vn("3C6MRVJG1ME572134",true,"","Picked Up","","","","",true,"4/7/26"),
+  vn("3C6URVJG5KE544933",true,"","Picked Up","","","","",true,"4/8/26"),vn("3C6URVJG1LE128458",true,"","Picked Up","","","","",true,"4/8/26"),
+];
+
+let saveTimer=null;
+function setS(t){['status-d','status-m'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t;});}
+function setDot(s){['sync-dot-d','sync-dot-m'].forEach(id=>{const d=document.getElementById(id);if(d)d.className='sync-dot '+s;});}
+function showErr(m){const b=document.getElementById('err-banner');document.getElementById('err-msg').textContent=m;b.classList.add('show');}
+function hideErr(){document.getElementById('err-banner').classList.remove('show');}
+
+async function loadFromDrive(){
+  setDot('syncing');setS('Loading...');
+  try{
+    const r=await fetch(SU+'?action=load');const j=await r.json();
+    if(j.success&&j.data&&j.data.vans&&j.data.vans.length){vans=j.data.vans;localStorage.setItem(LC,JSON.stringify({vans,at:new Date().toISOString()}));}
+    setDot('synced');setS('Synced '+new Date().toLocaleTimeString());hideErr();render();
+  }catch(e){
+    setDot('error');showErr('Could not reach Google Drive. Showing cached data.');
+    const c=localStorage.getItem(LC);if(c){try{const p=JSON.parse(c);if(p.vans)vans=p.vans;}catch(e2){}}
+    setS('Offline – cached data');render();
+  }
+}
+async function saveToDrive(){
+  setDot('syncing');setS('Saving...');
+  const payload={v:5,at:new Date().toISOString(),vans};
+  localStorage.setItem(LC,JSON.stringify(payload));
+  try{
+    const r=await fetch(SU,{method:'POST',body:JSON.stringify({action:'save',data:payload})});
+    const j=await r.json();if(!j.success)throw new Error();
+    setDot('synced');setS('Saved '+new Date().toLocaleTimeString());hideErr();
+  }catch(e){setDot('error');showErr('Could not save to Drive. Saved locally.');setS('Saved locally');}
+}
+function dirty(){clearTimeout(saveTimer);setDot('syncing');saveTimer=setTimeout(saveToDrive,1500);}
+function manualLoad(){loadFromDrive();}
+
+function go(name,el){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item,.bnav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('[data-p="'+name+'"]').forEach(n=>n.classList.add('active'));
+  const t=document.getElementById('topbar-title');if(t)t.textContent=TT[name]||name;
+  const ma=document.getElementById('mob-actions');if(ma)ma.style.display=name==='shop'?'flex':'none';
+}
+
+function openSearch(q){
+  const ov=document.getElementById('search-overlay');ov.classList.add('open');
+  const inp=document.getElementById('srch-inp');inp.value=q||'';inp.focus();
+  doSearch(inp.value);history.pushState({s:true},'');
+}
+function closeSearch(){
+  document.getElementById('search-overlay').classList.remove('open');
+  document.getElementById('srch-inp').value='';
+  document.getElementById('desk-srch').value='';
+  document.getElementById('search-results').innerHTML='';
+  document.getElementById('search-count').textContent='';
+}
+window.addEventListener('popstate',()=>{if(document.getElementById('search-overlay').classList.contains('open'))closeSearch();});
+function doSearch(q){
+  const term=q.trim().toLowerCase();
+  const res=document.getElementById('search-results');const cnt=document.getElementById('search-count');
+  if(!term){res.innerHTML='<div class="empty">Type a VIN or van number</div>';cnt.textContent='';return;}
+  const im=new Map(vans.map((v,i)=>[v,i]));
+  const found=vans.filter(v=>v.id.toLowerCase().includes(term));
+  cnt.style.cssText='padding:7px 14px 0;font-size:11px;color:var(--text3);';
+  cnt.textContent=found.length+' result'+(found.length!==1?'s':'');
+  res.innerHTML='';if(!found.length){res.innerHTML='<div class="empty">No vans found</div>';return;}
+  found.forEach(v=>res.appendChild(mkCard(v,im.get(v))));
+}
+
+function openDropoff(){
+  document.getElementById('do-id').value='';document.getElementById('do-date').value=today();
+  document.getElementById('do-issue').value='';document.getElementById('do-loc').value='';
+  document.getElementById('do-type').value='last4';openModal('modal-dropoff');
+}
+function confirmDropoff(){
+  const id=document.getElementById('do-id').value.trim();if(!id){alert('Please enter a Van ID or VIN.');return;}
+  const dt=document.getElementById('do-date').value;
+  vans.unshift(vn(id,document.getElementById('do-type').value==='vin',document.getElementById('do-issue').value.trim(),'New Drop Off','',document.getElementById('do-loc').value.trim(),dt?fmtD(dt):''));
+  closeModal('modal-dropoff');dirty();render();
+}
+function openPickup(){
+  const sel=document.getElementById('pu-van');sel.innerHTML='';
+  vans.forEach((v,i)=>{if(!v.pickedUp){const o=document.createElement('option');o.value=i;o.textContent=(v.isVin?'VIN ':'#')+v.id+(v.issue?' – '+v.issue.slice(0,26):'');sel.appendChild(o);}});
+  if(!sel.options.length){alert('No vans currently in shop.');return;}
+  document.getElementById('pu-date').value=today();document.getElementById('pu-by').value='';document.getElementById('pu-notes').value='';
+  ['cel','abs','tpms','oil','bat','trns','airbag','brk','4wd','other'].forEach(k=>{const e=document.getElementById('c-'+k);if(e)e.checked=false;});
+  document.getElementById('chk-warn').style.display='none';openModal('modal-pickup');
+}
+function confirmPickup(){
+  const keys=['cel','abs','tpms','oil','bat','trns','airbag','brk','4wd','other'];
+  if(!keys.every(k=>document.getElementById('c-'+k).checked)){document.getElementById('chk-warn').style.display='block';return;}
+  const idx=parseInt(document.getElementById('pu-van').value);const dt=document.getElementById('pu-date').value;
+  vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:dt?fmtDL(dt):'',pickupBy:document.getElementById('pu-by').value.trim(),dashClear:true,pickupNotes:document.getElementById('pu-notes').value.trim()};
+  closeModal('modal-pickup');dirty();render();
+}
+function openVanModal(idx){
+  const v=vans[idx];const label=(v.isVin?'VIN ':'#')+v.id;const isAI=v.status.startsWith('Auto Integrate');
+  const sheet=document.getElementById('van-sheet');
+  sheet.innerHTML=`<div class="sheet-handle"></div><span class="sheet-close" onclick="closeModal('modal-van')">✕ Done</span>
+  <h2>${label}</h2>
+  <div class="field"><label>Status</label>
+    <select id="v-st" onchange="handleAI(${idx},this.value)" style="width:100%;font-size:14px;padding:9px 11px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);">
+      ${SO.map(s=>`<option value="${s}"${s===v.status?' selected':''}>${s}</option>`).join('')}
+    </select>
+  </div>
+  <div id="ai-wrap" style="${isAI?'':'display:none'}">
+    <div class="ai-box"><div class="ai-box-label">Auto Integrate Status</div>
+      <div class="ai-toggle">
+        <button id="ai-p" class="${v.aiStatus==='pending'?'ai-pending':''}" onclick="setAI(${idx},'pending')">Pending Approval</button>
+        <button id="ai-a" class="${v.aiStatus==='approved'?'ai-approved':''}" onclick="setAI(${idx},'approved')">Approved</button>
+      </div>
+    </div>
+  </div>
+  <div class="field"><label>Issue / work needed</label><input id="v-is" value="${esc(v.issue)}"/></div>
+  <div class="two-col">
+    <div class="field"><label>Shop location</label><input id="v-lo" value="${esc(v.location)}"/></div>
+    <div class="field"><label>Pull-in date</label><input id="v-pi" value="${esc(v.pullIn)}"/></div>
+  </div>
+  <div class="field"><label>Tanz notes</label><input id="v-tz" value="${esc(v.tanzNotes)}"/></div>
+  <div class="two-col">
+    <div class="field"><label>Parts ordered</label><input id="v-po" value="${esc(v.partsOrdered)}" placeholder="Y / N / partial"/></div>
+    <div class="field"><label>Est. completion</label><input id="v-et" value="${esc(v.eta)}"/></div>
+  </div>
+  <div class="two-col">
+    <div class="field"><label>Parts ETA – dealer</label><input id="v-pd" value="${esc(v.partsEtaDealer)}"/></div>
+    <div class="field"><label>Parts ETA – vendor</label><input id="v-pv" value="${esc(v.partsEtaVendor)}"/></div>
+  </div>
+  <div class="field"><label>Waiting on</label><input id="v-wo" value="${esc(v.waitingOn)}"/></div>
+  <div class="field"><label>Notes</label><textarea id="v-no">${esc(v.notes)}</textarea></div>
+  <button class="btn-full primary" onclick="saveVan(${idx})">Save Changes</button>
+  <button class="btn-full" style="margin-top:7px;background:#FFF7ED;color:#C2410C;border:1px solid #FB923C;" onclick="moveToInProgress(${idx})">Move to In Progress</button>
+  <button class="btn-full green" style="margin-top:7px;" onclick="qPickup(${idx})">Mark as Picked Up</button>
+  <button class="btn-full danger" style="margin-top:7px;" onclick="delVan(${idx})">Remove Van</button>`;
+  openModal('modal-van');
+}
+function handleAI(idx,val){
+  document.getElementById('ai-wrap').style.display=val.startsWith('Auto Integrate')?'':'none';
+  if(val==='Auto Integrate – Pending')setAI(idx,'pending',true);
+  if(val==='Auto Integrate – Approved')setAI(idx,'approved',true);
+}
+function setAI(idx,val,skip){
+  const p=document.getElementById('ai-p');const a=document.getElementById('ai-a');
+  if(p)p.className=val==='pending'?'ai-pending':'';if(a)a.className=val==='approved'?'ai-approved':'';
+  vans[idx].aiStatus=val;vans[idx].status=val==='approved'?'Auto Integrate – Approved':'Auto Integrate – Pending';
+  if(!skip)dirty();
+}
+function saveVan(idx){
+  const f={issue:'v-is',location:'v-lo',pullIn:'v-pi',tanzNotes:'v-tz',partsOrdered:'v-po',eta:'v-et',partsEtaDealer:'v-pd',partsEtaVendor:'v-pv',waitingOn:'v-wo',notes:'v-no'};
+  Object.entries(f).forEach(([k,id])=>{const e=document.getElementById(id);if(e)vans[idx][k]=e.value;});
+  const st=document.getElementById('v-st');if(st)vans[idx].status=st.value;
+  closeModal('modal-van');dirty();render();
+}
+function moveToInProgress(idx){
+  vans[idx].status='In Progress';
+  closeModal('modal-van');dirty();render();
+}
+function qPickup(idx){
+  const by=prompt('Picked up by (driver name):','');if(by===null)return;
+  if(!confirm('Confirm all dashboard lights are OFF?')){alert('All lights must be clear before pickup.');return;}
+  vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),pickupBy:by,dashClear:true,pickupNotes:''};
+  closeModal('modal-van');dirty();render();
+}
+function delVan(idx){if(confirm('Remove this van?')){vans.splice(idx,1);closeModal('modal-van');dirty();render();}}
+function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+
+function mkCard(v,i){
+  const d=document.createElement('div');d.className='van-card';
+  const lbl=(v.isVin?'VIN ':'#')+v.id;
+  const loc=v.location?`<div class="card-loc">${v.location}${v.pullIn?' · '+v.pullIn:''}</div>`:'';
+  const nt=v.notes?`<div class="card-loc" style="color:var(--text2);margin-top:2px;">${v.notes}</div>`:'';
+  if(v.pickedUp){
+    d.innerHTML=`<div class="card-top"><span class="card-id">${lbl}</span><span class="badge b-pickedup">Picked Up</span></div>
+    <div class="card-sub">${v.issue||''}</div>
+    <div class="picked-detail">
+      <div class="info-row"><span class="info-lbl">Pickup date</span><span class="info-val">${v.pickupDate||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">Picked up by</span><span class="info-val">${v.pickupBy||'—'}</span></div>
+      <div class="info-row"><span class="info-lbl">Dashboard</span><span class="info-val ok">All clear</span></div>
+      <div class="info-row"><span class="info-lbl">Notes</span><span class="info-val">${v.pickupNotes||'None'}</span></div>
+    </div>`;
+    d.onclick=()=>d.classList.toggle('open');
+  }else{
+    d.innerHTML=`<div class="card-top"><span class="card-id">${lbl}</span><span class="badge ${SC[v.status]||'b-inspection'}">${v.status}</span></div>
+    <div class="card-sub">${v.issue||'No issue entered'}</div>${loc}${nt}`;
+    d.onclick=()=>openVanModal(i);
+  }
+  return d;
+}
+
+function render(){
+  const shop=vans.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded'&&v.status!=='In Progress');
+  const inprogress=vans.filter(v=>!v.pickedUp&&v.status==='In Progress');
+  const aip=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Pending');
+  const aia=vans.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Approved');
+  const ford=vans.filter(v=>!v.pickedUp&&v.status==='At Ford – Warranty');
+  const aplena=vans.filter(v=>!v.pickedUp&&v.status==='In Aplena – Warranty');
+  const grounded=vans.filter(v=>!v.pickedUp&&v.status==='Grounded');
+  const ready=vans.filter(v=>!v.pickedUp&&v.status==='Ready for Pickup');
+  const picked=vans.filter(v=>v.pickedUp);
+  const aiT=aip.length+aia.length;const warT=ford.length+aplena.length;
+
+  [['shop',shop.length],['inprogress',inprogress.length],['ai',aiT],['warranty',warT],['ready',ready.length],['grounded',grounded.length],['picked',picked.length]].forEach(([k,n])=>{
+    const nc=document.getElementById('nc-'+k);if(nc)nc.textContent=n;
+    const bc=document.getElementById('bc-'+k);if(bc){bc.textContent=n;bc.className='bnav-badge'+(n>0?' show':'');}
+    const bw=document.getElementById('bc-war');if(bw&&k==='warranty'){bw.textContent=n;bw.className='bnav-badge'+(n>0?' show':'');}
+  });
+
+  document.getElementById('stats-bar').innerHTML=`
+    <div class="stat-card"><div class="num">${shop.length}</div><div class="lbl">In Shop</div></div>
+    <div class="stat-card"><div class="num">${inprogress.length}</div><div class="lbl">In Progress</div></div>
+    <div class="stat-card"><div class="num">${aiT}</div><div class="lbl">Auto Int.</div></div>
+    <div class="stat-card"><div class="num">${warT}</div><div class="lbl">Warranty</div></div>
+    <div class="stat-card"><div class="num">${ready.length}</div><div class="lbl">Ready</div></div>
+    <div class="stat-card"><div class="num">${grounded.length}</div><div class="lbl">Grounded</div></div>
+    <div class="stat-card"><div class="num">${picked.length}</div><div class="lbl">Picked Up</div></div>`;
+
+  const im=new Map(vans.map((v,i)=>[v,i]));
+  const fill=(id,list)=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';if(!list.length){el.innerHTML='<div class="empty">None</div>';return;}list.forEach(v=>el.appendChild(mkCard(v,im.get(v))));};
+  fill('list-shop',shop);fill('list-inprogress',inprogress);fill('list-aip',aip);fill('list-aia',aia);
+  fill('list-ford',ford);fill('list-aplena',aplena);fill('list-grounded',grounded);fill('list-ready',ready);fill('list-picked',picked);
+  checkDups();
+}
+
+function findDups(){
+  const ss=vans.filter(v=>!v.isVin);const fs=vans.filter(v=>v.isVin);
+  const dups=[];ss.forEach(s=>{fs.filter(f=>f.id.slice(-4)===s.id).forEach(f=>dups.push({s,si:vans.indexOf(s),f,fi:vans.indexOf(f)}));});
+  return dups;
+}
+function checkDups(){
+  const dups=findDups();const b=document.getElementById('dup-banner');
+  if(dups.length){document.getElementById('dup-msg').textContent=`${dups.length} duplicate VIN${dups.length>1?'s':''} detected`;b.classList.add('show');}
+  else b.classList.remove('show');
+}
+function openDupModal(){
+  const dups=findDups();const list=document.getElementById('dup-list');list.innerHTML='';
+  if(!dups.length){list.innerHTML='<div class="empty">No duplicates found</div>';openModal('modal-dup');return;}
+  dups.forEach(({s,si,f,fi})=>{
+    const d=document.createElement('div');
+    d.style.cssText='background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:9px;';
+    d.innerHTML=`<div style="font-size:12px;font-weight:600;margin-bottom:4px;">#${s.id} ↔ ${f.id}</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">Last-4: <strong>${s.status}</strong> | Full: <strong>${f.status}</strong></div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-sm dark" style="flex:1;" onclick="kL4(${si},${fi})">Keep Last-4</button>
+        <button class="btn-sm" style="flex:1;" onclick="kFV(${si},${fi})">Keep Full VIN</button>
+      </div>`;
+    list.appendChild(d);
+  });openModal('modal-dup');
+}
+function kL4(si,fi){vans.splice(fi,1);closeModal('modal-dup');dirty();render();setTimeout(()=>{if(findDups().length)openDupModal();},300);}
+function kFV(si,fi){vans.splice(si,1);closeModal('modal-dup');dirty();render();setTimeout(()=>{if(findDups().length)openDupModal();},300);}
+
+function genReport(){
+  const date=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const line='─'.repeat(36);let out=`Element Fleet – Van Status Update\n${date}\n${line}`;
+  const active=vans.filter(v=>!v.pickedUp);const picked=vans.filter(v=>v.pickedUp);
+  if(active.length){out+='\n\nACTIVE VANS';active.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id}\nStatus: ${v.status}`;if(v.issue)out+=`\nIssue: ${v.issue}`;if(v.status.startsWith('Auto Integrate'))out+=`\nAI: ${v.aiStatus==='approved'?'Approved':'Pending'}`;if(v.location)out+=`\nLocation: ${v.location}`;if(v.pullIn)out+=`\nPull-in: ${v.pullIn}`;if(v.tanzNotes)out+=`\nTanz: ${v.tanzNotes}`;if(v.partsOrdered)out+=`\nParts: ${v.partsOrdered}`;if(v.partsEtaDealer)out+=`\nDealer ETA: ${v.partsEtaDealer}`;if(v.partsEtaVendor)out+=`\nVendor ETA: ${v.partsEtaVendor}`;if(v.eta)out+=`\nCompletion: ${v.eta}`;if(v.waitingOn)out+=`\nWaiting: ${v.waitingOn}`;if(v.notes)out+=`\nNotes: ${v.notes}`;out+=`\n${line}`;});}
+  if(picked.length){out+='\n\nPICKED UP';picked.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id}\nPickup: ${v.pickupDate||'—'}\nBy: ${v.pickupBy||'—'}\nDash: All clear`;if(v.pickupNotes)out+=`\nNotes: ${v.pickupNotes}`;out+=`\n${line}`;});}
+  const box=document.getElementById('report-out');box.textContent=out;box.style.display='block';
+  document.getElementById('copy-btn').style.display='inline-block';
+  navigator.clipboard.writeText(out).catch(()=>{});
+}
+function copyReport(){navigator.clipboard.writeText(document.getElementById('report-out').textContent).catch(()=>{});}
+function today(){return new Date().toISOString().split('T')[0];}
+function fmtD(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtDL(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+
+loadFromDrive();
+</script>
+</body>
+</html>
