@@ -566,9 +566,15 @@ function getStatusCount(locVans,key){
 function renderVanList(){
   const list=document.getElementById('van-list');
   const ar=document.getElementById('van-action-row');
+  if(!list){console.error('van-list not found');return;}
   list.innerHTML='';
   const locVans=getLocVans(currentLoc);
   const im=new Map(vans.map((v,i)=>[v,i]));
+
+  // Debug info
+  list.innerHTML=`<div style="background:#EBF2FF;padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;">
+    Location: <strong>${currentLoc}</strong> | Status: <strong>${currentStatus}</strong> | Total vans: <strong>${vans.length}</strong> | Location vans: <strong>${locVans.length}</strong>
+  </div>`;
 
   if(currentStatus==='report'){
     ar.style.display='none';
