@@ -451,7 +451,8 @@ function showLocationScreen(){
 
 function showVanScreen(loc){
   document.getElementById('screen-locations').style.display='none';
-  document.getElementById('screen-vans').style.display='flex';
+  const sv=document.getElementById('screen-vans');
+  sv.style.display='flex';sv.style.flex='1';sv.style.overflow='hidden';sv.style.flexDirection='column';
   document.getElementById('bottom-nav').style.display='block';
   const title=loc==='all'?'All Locations':loc;
   document.getElementById('topbar-title').textContent=title;
@@ -459,6 +460,7 @@ function showVanScreen(loc){
   document.getElementById('mob-title').textContent=title;
   document.getElementById('mob-topbar-back').style.display='block';
   document.getElementById('sb-status-nav').style.display='block';
+  currentStatus='shop';
   renderStatusTabs();
   renderVanList();
 }
