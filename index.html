@@ -271,9 +271,9 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
   </div>
 
   <!-- VAN STATUS SCREEN -->
-  <div id="screen-vans" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
-    <div class="tab-bar" id="status-tabs"></div>
-    <div id="van-content" style="flex:1;overflow-y:auto;padding:14px 18px;">
+  <div id="screen-vans" style="display:none;position:absolute;top:0;left:0;right:0;bottom:0;flex-direction:column;background:var(--bg);">
+    <div class="tab-bar" id="status-tabs" style="flex-shrink:0;"></div>
+    <div id="van-content" style="flex:1;overflow-y:auto;padding:14px 18px;height:calc(100% - 45px);">
       <div class="action-row" id="van-action-row">
         <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
         <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
@@ -455,7 +455,7 @@ function showLocationScreen(){
 function showVanScreen(loc){
   document.getElementById('screen-locations').style.display='none';
   const sv=document.getElementById('screen-vans');
-  sv.style.display='flex';
+  sv.style.display='block';
   document.getElementById('bottom-nav').style.display='block';
   const title=loc==='all'?'All Locations':loc;
   document.getElementById('topbar-title').textContent=title;
