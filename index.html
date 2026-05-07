@@ -25,11 +25,11 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 #layout{display:flex;height:100vh;}
 
 /* SIDEBAR */
-#sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden;}
-#sb-logo{padding:16px 14px 10px;border-bottom:1px solid var(--border);}
-#sb-logo h1{font-size:15px;font-weight:600;}
+#sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden;}
+#sb-logo{padding:14px 14px 10px;border-bottom:1px solid var(--border);}
+#sb-logo h1{font-size:14px;font-weight:600;}
 #sb-logo p{font-size:10px;color:var(--text3);}
-#sb-sync{display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text3);}
+#sb-sync{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
 .sync-dot.synced{background:var(--green);}
 .sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite;}
@@ -37,32 +37,20 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 #sb-search{padding:7px 9px;border-bottom:1px solid var(--border);}
 #sb-search input{width:100%;font-size:12px;padding:7px 11px;border-radius:99px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);outline:none;font-family:inherit;}
-#sb-search input:focus{border-color:var(--text);}
-
-/* Location filter in sidebar */
-#sb-locs{padding:6px 0;border-bottom:1px solid var(--border);}
-.sb-loc{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);}
+#sb-locs{flex:1;overflow-y:auto;padding:6px 0;}
+.sb-loc{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);}
 .sb-loc:hover{background:var(--surface2);}
 .sb-loc.active{background:var(--surface2);color:var(--text);}
-.sb-loc-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;}
-.sb-loc.active .sb-loc-dot{background:var(--text);}
+.sb-loc-icon{font-size:14px;flex-shrink:0;}
 .sb-loc-count{margin-left:auto;font-size:10px;font-weight:600;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:99px;}
 .sb-loc.active .sb-loc-count{background:var(--text);color:#fff;}
-
-#sb-nav{flex:1;overflow-y:auto;padding:5px 0;}
-.nav-section{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;padding:8px 14px 2px;}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);}
-.nav-item:hover{background:var(--surface2);}
-.nav-item.active{background:var(--surface2);color:var(--text);}
-.nav-icon{font-size:13px;width:16px;text-align:center;}
-.nav-count{margin-left:auto;font-size:10px;font-weight:600;background:var(--surface2);color:var(--text2);padding:1px 6px;border-radius:99px;}
-.nav-item.active .nav-count{background:var(--text);color:#fff;}
 #sb-actions{padding:9px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px;}
 
 /* MAIN */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 #topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-#topbar h2{font-size:15px;font-weight:600;flex:1;}
+#topbar h2{font-size:15px;font-weight:600;}
+#topbar-sub{font-size:12px;color:var(--text3);margin-top:1px;}
 #content-area{flex:1;overflow-y:auto;padding:16px 18px;}
 
 /* Cards */
@@ -93,18 +81,33 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 .info-lbl{color:var(--text2);}
 .info-val{font-weight:500;text-align:right;max-width:60%;}
 .info-val.ok{color:var(--green);}
-.section-hdr{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border);}
-.section-hdr:first-child{margin-top:0;}
-.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
-.action-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+
+/* Status sections */
+.status-section{margin-bottom:24px;}
+.status-section-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.status-section-hdr .icon{font-size:16px;}
+.status-section-hdr .title{font-size:13px;font-weight:600;color:var(--text);}
+.status-section-hdr .count{font-size:11px;font-weight:600;background:var(--text);color:#fff;padding:2px 8px;border-radius:99px;}
+
+.empty-section{display:none;}
+.action-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
 .action-btn{padding:8px 16px;border-radius:9px;border:1px solid var(--border2);background:var(--surface);font-size:13px;font-weight:500;color:var(--text);cursor:pointer;box-shadow:var(--shadow);}
 .action-btn.primary{background:var(--text);color:#fff;border-color:var(--text);}
 .action-btn:hover{opacity:0.9;}
-.stats-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
-.stats-bar::-webkit-scrollbar{display:none;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 12px;flex:0 0 auto;box-shadow:var(--shadow);}
-.stat-card .num{font-size:20px;font-weight:600;}
-.stat-card .lbl{font-size:9px;color:var(--text3);margin-top:1px;white-space:nowrap;}
+
+/* Location home grid */
+.loc-home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+.loc-home-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;box-shadow:var(--shadow);transition:box-shadow 0.15s,transform 0.1s;}
+.loc-home-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);transform:translateY(-1px);}
+.loc-home-card-name{font-size:15px;font-weight:600;margin-bottom:4px;}
+.loc-home-card-count{font-size:12px;color:var(--text2);}
+.loc-home-card-pills{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.lhpill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--surface2);color:var(--text2);}
+.lhpill.amber{background:var(--amber-bg);color:var(--amber-text);}
+.lhpill.green{background:var(--green-bg);color:var(--green-text);}
+.lhpill.red{background:var(--red-bg);color:var(--red-text);}
+
+/* Banners */
 .banner{padding:8px 18px;font-size:11px;font-weight:500;display:none;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
 .banner.show{display:flex;}
 .banner-warn{background:var(--amber-bg);color:var(--amber-text);border-bottom:1px solid #FDE68A;}
@@ -153,29 +156,18 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 .chk-warn{font-size:11px;color:var(--red);font-weight:500;margin-top:7px;display:none;}
 .report-out{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;font-size:11px;font-family:monospace;white-space:pre-wrap;color:var(--text);max-height:380px;overflow-y:auto;margin-top:9px;display:none;line-height:1.6;}
 
-/* Location cards on home screen */
-.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
-.loc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;box-shadow:var(--shadow);transition:box-shadow 0.15s;}
-.loc-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);}
-.loc-card.active{border-color:var(--text);box-shadow:0 0 0 2px var(--text);}
-.loc-card-name{font-size:14px;font-weight:600;margin-bottom:3px;}
-.loc-card-count{font-size:12px;color:var(--text2);}
-.loc-card-stats{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
-.loc-stat{font-size:9px;font-weight:600;padding:2px 6px;border-radius:99px;background:var(--surface2);color:var(--text2);}
-.loc-stat.amber{background:var(--amber-bg);color:var(--amber-text);}
-.loc-stat.green{background:var(--green-bg);color:var(--green-text);}
-
 /* Mobile */
 #bottom-nav{display:none;background:var(--surface);border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
 #bottom-nav::-webkit-scrollbar{display:none;}
 .bnav-items{display:flex;min-width:max-content;}
-.bnav-item{flex:0 0 auto;width:68px;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;font-size:9px;font-weight:500;color:var(--text3);gap:2px;position:relative;}
+.bnav-item{flex:0 0 auto;width:72px;display:flex;flex-direction:column;align-items:center;padding:7px 4px 8px;cursor:pointer;font-size:9px;font-weight:500;color:var(--text3);gap:2px;position:relative;}
 .bnav-item.active{color:var(--text);}
-.bnav-icon{font-size:17px;line-height:1;}
+.bnav-icon{font-size:18px;line-height:1;}
 .bnav-badge{position:absolute;top:3px;right:14px;font-size:8px;font-weight:700;background:var(--red);color:#fff;border-radius:99px;padding:0 3px;min-width:13px;text-align:center;display:none;}
 .bnav-badge.show{display:block;}
 #mob-topbar{display:none;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 13px;align-items:center;gap:8px;flex-shrink:0;}
 #mob-topbar h1{font-size:14px;font-weight:600;flex:1;}
+#mob-back{font-size:20px;cursor:pointer;color:var(--text2);display:none;}
 
 @media(max-width:767px){
   #layout{flex-direction:column;}
@@ -183,9 +175,9 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
   #topbar{display:none;}
   #mob-topbar{display:flex;}
   #bottom-nav{display:block;}
-  #content-area{padding:11px 13px 6px;}
+  #content-area{padding:12px 13px 6px;}
   .cards-grid{grid-template-columns:1fr;}
-  .loc-grid{grid-template-columns:1fr 1fr;gap:8px;}
+  .loc-home-grid{grid-template-columns:1fr 1fr;gap:8px;}
   .action-row{gap:7px;}
   .action-btn{flex:1;text-align:center;padding:12px 8px;}
 }
@@ -194,108 +186,82 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 <body>
 <div id="layout">
 
-<!-- SIDEBAR -->
 <div id="sidebar">
   <div id="sb-logo"><h1>Fleet Tracker</h1><p>McInerney Automotive</p></div>
   <div id="sb-sync">
     <div class="sync-dot syncing" id="sync-dot-d"></div>
     <span id="status-d" style="flex:1;">Connecting...</span>
-    <button class="btn-sm" style="font-size:10px;padding:2px 7px;" onclick="manualLoad()">Refresh</button>
+    <button class="btn-sm" style="font-size:10px;padding:2px 7px;" onclick="manualLoad()">↻</button>
   </div>
   <div id="sb-search"><input type="search" placeholder="Search VIN or van..." oninput="openSearch(this.value)" id="desk-srch"/></div>
-
-  <!-- Location filters -->
   <div id="sb-locs">
-    <div class="sb-loc active" onclick="setLoc('all',this)" data-loc="all">
-      <span class="sb-loc-dot"></span>All Locations<span class="sb-loc-count" id="lc-all">0</span>
+    <div class="sb-loc active" onclick="goLoc('home',this)" data-loc="home">
+      <span class="sb-loc-icon">🏢</span>All Locations<span class="sb-loc-count" id="lc-home">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Troy',this)" data-loc="Troy">
-      <span class="sb-loc-dot"></span>Troy<span class="sb-loc-count" id="lc-Troy">0</span>
+    <div class="sb-loc" onclick="goLoc('Troy',this)" data-loc="Troy">
+      <span class="sb-loc-icon">📍</span>Troy<span class="sb-loc-count" id="lc-Troy">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Saginaw',this)" data-loc="Saginaw">
-      <span class="sb-loc-dot"></span>Saginaw<span class="sb-loc-count" id="lc-Saginaw">0</span>
+    <div class="sb-loc" onclick="goLoc('Saginaw',this)" data-loc="Saginaw">
+      <span class="sb-loc-icon">📍</span>Saginaw<span class="sb-loc-count" id="lc-Saginaw">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Grand Rapids',this)" data-loc="Grand Rapids">
-      <span class="sb-loc-dot"></span>Grand Rapids<span class="sb-loc-count" id="lc-Grand Rapids">0</span>
+    <div class="sb-loc" onclick="goLoc('Grand Rapids',this)" data-loc="Grand Rapids">
+      <span class="sb-loc-icon">📍</span>Grand Rapids<span class="sb-loc-count" id="lc-Grand Rapids">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Gaylord',this)" data-loc="Gaylord">
-      <span class="sb-loc-dot"></span>Gaylord<span class="sb-loc-count" id="lc-Gaylord">0</span>
+    <div class="sb-loc" onclick="goLoc('Gaylord',this)" data-loc="Gaylord">
+      <span class="sb-loc-icon">📍</span>Gaylord<span class="sb-loc-count" id="lc-Gaylord">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Cleveland',this)" data-loc="Cleveland">
-      <span class="sb-loc-dot"></span>Cleveland<span class="sb-loc-count" id="lc-Cleveland">0</span>
+    <div class="sb-loc" onclick="goLoc('Cleveland',this)" data-loc="Cleveland">
+      <span class="sb-loc-icon">📍</span>Cleveland<span class="sb-loc-count" id="lc-Cleveland">0</span>
     </div>
-    <div class="sb-loc" onclick="setLoc('Alpena',this)" data-loc="Alpena">
-      <span class="sb-loc-dot"></span>Alpena<span class="sb-loc-count" id="lc-Alpena">0</span>
+    <div class="sb-loc" onclick="goLoc('Alpena',this)" data-loc="Alpena">
+      <span class="sb-loc-icon">📍</span>Alpena<span class="sb-loc-count" id="lc-Alpena">0</span>
+    </div>
+    <div class="sb-loc" onclick="goLoc('report',this)" data-loc="report">
+      <span class="sb-loc-icon">📋</span>Report
     </div>
   </div>
-
-  <nav id="sb-nav">
-    <div class="nav-section">Status</div>
-    <div class="nav-item active" onclick="go('shop',this)" data-p="shop"><span class="nav-icon">🔧</span>In Shop<span class="nav-count" id="nc-shop">0</span></div>
-    <div class="nav-item" onclick="go('inprogress',this)" data-p="inprogress"><span class="nav-icon">🔨</span>In Progress<span class="nav-count" id="nc-inprogress">0</span></div>
-    <div class="nav-item" onclick="go('ai',this)" data-p="ai"><span class="nav-icon">⚙️</span>Auto Integrate<span class="nav-count" id="nc-ai">0</span></div>
-    <div class="nav-item" onclick="go('warranty',this)" data-p="warranty"><span class="nav-icon">🏭</span>Warranty<span class="nav-count" id="nc-warranty">0</span></div>
-    <div class="nav-item" onclick="go('ready',this)" data-p="ready"><span class="nav-icon">✅</span>Ready<span class="nav-count" id="nc-ready">0</span></div>
-    <div class="nav-item" onclick="go('grounded',this)" data-p="grounded"><span class="nav-icon">🚫</span>Grounded<span class="nav-count" id="nc-grounded">0</span></div>
-    <div class="nav-item" onclick="go('recall',this)" data-p="recall"><span class="nav-icon">⚠️</span>Recall<span class="nav-count" id="nc-recall">0</span></div>
-    <div class="nav-item" onclick="go('picked',this)" data-p="picked"><span class="nav-icon">🚐</span>Picked Up<span class="nav-count" id="nc-picked">0</span></div>
-    <div class="nav-item" onclick="go('report',this)" data-p="report"><span class="nav-icon">📋</span>Report</div>
-  </nav>
   <div id="sb-actions">
     <button class="action-btn primary" onclick="openDropoff()" style="width:100%;text-align:center;font-size:12px;padding:8px;">+ New Drop-off</button>
     <button class="action-btn" onclick="openPickup()" style="width:100%;text-align:center;font-size:12px;padding:8px;">Mark Picked Up</button>
   </div>
 </div>
 
-<!-- MAIN -->
 <div id="main">
   <div id="mob-topbar">
-    <div style="flex:1;"><h1>Fleet Tracker</h1><p id="status-m" style="font-size:9px;color:var(--text3);">Connecting...</p></div>
+    <span id="mob-back" onclick="goLoc('home',null)">←</span>
+    <div style="flex:1;"><h1 id="mob-title">Fleet Tracker</h1><p id="status-m" style="font-size:9px;color:var(--text3);">Connecting...</p></div>
     <div class="sync-dot syncing" id="sync-dot-m"></div>
-    <button class="btn-sm" onclick="manualLoad()">Refresh</button>
-    <button class="btn-sm" onclick="openSearch('')" style="font-size:14px;padding:3px 7px;border:none;background:none;">🔍</button>
+    <button class="btn-sm" onclick="manualLoad()">↻</button>
+    <button class="btn-sm" onclick="openSearch('')" style="font-size:15px;padding:3px 7px;border:none;background:none;">🔍</button>
   </div>
   <div id="topbar">
-    <h2 id="topbar-title">Fleet Tracker</h2>
-    <!-- Location pill selector on desktop -->
-    <div id="loc-pills" style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;"></div>
+    <div>
+      <h2 id="topbar-title">All Locations</h2>
+      <div id="topbar-sub"></div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
+      <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
+    </div>
   </div>
   <div class="banner banner-warn" id="err-banner"><span id="err-msg"></span><button onclick="manualLoad()">Retry</button></div>
   <div class="banner banner-warn" id="dup-banner" style="cursor:pointer;" onclick="openDupModal()"><span id="dup-msg"></span><button>Review</button></div>
 
   <div id="content-area">
-    <!-- HOME: location cards (shown when currentPane='home') -->
-    <div id="pane-home">
-      <div class="action-row">
+    <!-- HOME: location cards -->
+    <div id="view-home">
+      <div class="action-row" id="home-actions">
         <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
         <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
       </div>
-      <div class="loc-grid" id="loc-grid"></div>
+      <div class="loc-home-grid" id="loc-grid"></div>
     </div>
 
-    <!-- STATUS PANES -->
-    <div id="pane-shop" style="display:none;">
-      <div class="action-row">
-        <button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
-        <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>
-      </div>
-      <div class="stats-bar" id="stats-bar"></div>
-      <div class="cards-grid" id="list-shop"></div>
-    </div>
-    <div id="pane-inprogress" style="display:none;"><div class="cards-grid" id="list-inprogress"></div></div>
-    <div id="pane-ai" style="display:none;">
-      <div class="section-hdr">Pending Approval</div><div class="cards-grid" id="list-aip"></div>
-      <div class="section-hdr">Approved</div><div class="cards-grid" id="list-aia"></div>
-    </div>
-    <div id="pane-warranty" style="display:none;">
-      <div class="section-hdr">At Ford – Warranty</div><div class="cards-grid" id="list-ford"></div>
-      <div class="section-hdr">In Aplena – Warranty</div><div class="cards-grid" id="list-aplena"></div>
-    </div>
-    <div id="pane-ready" style="display:none;"><div class="cards-grid" id="list-ready"></div></div>
-    <div id="pane-grounded" style="display:none;"><div class="cards-grid" id="list-grounded"></div></div>
-    <div id="pane-recall" style="display:none;"><div class="cards-grid" id="list-recall"></div></div>
-    <div id="pane-picked" style="display:none;"><div class="cards-grid" id="list-picked"></div></div>
-    <div id="pane-report" style="display:none;">
+    <!-- LOCATION VIEW: all statuses for one location -->
+    <div id="view-location" style="display:none;"></div>
+
+    <!-- REPORT -->
+    <div id="view-report" style="display:none;">
       <div style="max-width:580px;">
         <div class="action-row">
           <button class="action-btn primary" onclick="genReport()">Generate Element Update</button>
@@ -306,7 +272,6 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
     </div>
   </div>
 
-  <!-- Search overlay -->
   <div id="search-overlay" style="position:absolute;">
     <div id="search-top">
       <button onclick="closeSearch()" style="font-size:19px;padding:1px 7px;border:none;background:none;cursor:pointer;color:var(--text2);">←</button>
@@ -321,15 +286,13 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 <!-- Mobile bottom nav -->
 <div id="bottom-nav">
   <div class="bnav-items">
-    <div class="bnav-item active" onclick="go('shop',this)" data-p="shop"><span class="bnav-badge" id="bnc-shop"></span><span class="bnav-icon">🔧</span><span>Shop</span></div>
-    <div class="bnav-item" onclick="go('inprogress',this)" data-p="inprogress"><span class="bnav-badge" id="bnc-inprogress"></span><span class="bnav-icon">🔨</span><span>In Prog.</span></div>
-    <div class="bnav-item" onclick="go('ai',this)" data-p="ai"><span class="bnav-badge" id="bnc-ai"></span><span class="bnav-icon">⚙️</span><span>Auto</span></div>
-    <div class="bnav-item" onclick="go('warranty',this)" data-p="warranty"><span class="bnav-badge" id="bnc-warranty"></span><span class="bnav-icon">🏭</span><span>Warranty</span></div>
-    <div class="bnav-item" onclick="go('ready',this)" data-p="ready"><span class="bnav-badge" id="bnc-ready"></span><span class="bnav-icon">✅</span><span>Ready</span></div>
-    <div class="bnav-item" onclick="go('grounded',this)" data-p="grounded"><span class="bnav-badge" id="bnc-grounded"></span><span class="bnav-icon">🚫</span><span>Grounded</span></div>
-    <div class="bnav-item" onclick="go('recall',this)" data-p="recall"><span class="bnav-badge" id="bnc-recall"></span><span class="bnav-icon">⚠️</span><span>Recall</span></div>
-    <div class="bnav-item" onclick="go('picked',this)" data-p="picked"><span class="bnav-badge" id="bnc-picked"></span><span class="bnav-icon">🚐</span><span>Picked Up</span></div>
-    <div class="bnav-item" onclick="go('report',this)" data-p="report"><span class="bnav-icon">📋</span><span>Report</span></div>
+    <div class="bnav-item active" onclick="goLoc('home',this)" data-loc="home"><span class="bnav-icon">🏢</span><span>Home</span></div>
+    <div class="bnav-item" onclick="goLoc('Troy',this)" data-loc="Troy"><span class="bnav-badge" id="bnc-Troy"></span><span class="bnav-icon">📍</span><span>Troy</span></div>
+    <div class="bnav-item" onclick="goLoc('Saginaw',this)" data-loc="Saginaw"><span class="bnav-badge" id="bnc-Saginaw"></span><span class="bnav-icon">📍</span><span>Saginaw</span></div>
+    <div class="bnav-item" onclick="goLoc('Grand Rapids',this)" data-loc="Grand Rapids"><span class="bnav-badge" id="bnc-Grand Rapids"></span><span class="bnav-icon">📍</span><span>Gr. Rapids</span></div>
+    <div class="bnav-item" onclick="goLoc('Gaylord',this)" data-loc="Gaylord"><span class="bnav-icon">📍</span><span>Gaylord</span></div>
+    <div class="bnav-item" onclick="goLoc('Alpena',this)" data-loc="Alpena"><span class="bnav-badge" id="bnc-Alpena"></span><span class="bnav-icon">📍</span><span>Alpena</span></div>
+    <div class="bnav-item" onclick="goLoc('report',this)" data-loc="report"><span class="bnav-icon">📋</span><span>Report</span></div>
   </div>
 </div>
 </div>
@@ -345,8 +308,7 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
   </div>
   <div class="field"><label>Issue / work needed</label><input id="do-issue" placeholder="Describe the issue"/></div>
   <div class="field"><label>Shop location</label>
-    <select id="do-loc">
-      <option value="">Select location...</option>
+    <select id="do-loc"><option value="">Select location...</option>
       <option value="Troy">Troy</option><option value="Saginaw">Saginaw</option>
       <option value="Grand Rapids">Grand Rapids</option><option value="Gaylord">Gaylord</option>
       <option value="Cleveland">Cleveland</option><option value="Alpena">Alpena</option>
@@ -390,14 +352,25 @@ html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;colo
 
 <script>
 const SU='https://script.google.com/macros/s/AKfycbx-Z9ppFp-kawkG90Nn1381qO6jCqZKom0PflXSndm41HWWUBSfbCAhybYXcf06OSa4/exec';
-const LC='vanFleet_v7';
+const LC='vanFleet_v8';
 const LOCS=['Troy','Saginaw','Grand Rapids','Gaylord','Cleveland','Alpena'];
 const SO=["New Drop Off","Waiting – Inspection","Auto Integrate – Pending","Auto Integrate – Approved","At Ford – Warranty","In Aplena – Warranty","Ready for Pickup","Grounded","Recall"];
 const SC={'Parts Ordered':'b-parts','Waiting – Inspection':'b-inspection','In Progress':'b-inprogress','Ready for Pickup':'b-ready','New Drop Off':'b-new','Auto Integrate – Pending':'b-ai-pending','Auto Integrate – Approved':'b-ai-approved','Picked Up':'b-pickedup','At Ford – Warranty':'b-ford','In Aplena – Warranty':'b-aplena','Grounded':'b-grounded','Recall':'b-recall'};
 
+const SECTIONS=[
+  {key:'shop',label:'In Shop',icon:'🔧',filter:v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded'&&v.status!=='In Progress'&&v.status!=='Recall'},
+  {key:'inprogress',label:'In Progress',icon:'🔨',filter:v=>!v.pickedUp&&v.status==='In Progress'},
+  {key:'ai_pending',label:'Auto Integrate – Pending',icon:'⚙️',filter:v=>!v.pickedUp&&v.status==='Auto Integrate – Pending'},
+  {key:'ai_approved',label:'Auto Integrate – Approved',icon:'✅',filter:v=>!v.pickedUp&&v.status==='Auto Integrate – Approved'},
+  {key:'warranty',label:'Warranty',icon:'🏭',filter:v=>!v.pickedUp&&(v.status==='At Ford – Warranty'||v.status==='In Aplena – Warranty')},
+  {key:'ready',label:'Ready for Pickup',icon:'✅',filter:v=>!v.pickedUp&&v.status==='Ready for Pickup'},
+  {key:'grounded',label:'Grounded',icon:'🚫',filter:v=>!v.pickedUp&&v.status==='Grounded'},
+  {key:'recall',label:'Recall',icon:'⚠️',filter:v=>!v.pickedUp&&v.status==='Recall'},
+  {key:'picked',label:'Picked Up',icon:'🚐',filter:v=>v.pickedUp},
+];
+
 let vans=[];
-let currentLoc='all';
-let currentPane='shop';
+let currentLoc='home';
 let saveTimer=null;
 
 function setS(t){['status-d','status-m'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t;});}
@@ -423,7 +396,7 @@ async function loadFromDrive(){
 }
 async function saveToDrive(){
   setDot('syncing');setS('Saving...');
-  const payload={v:7,at:new Date().toISOString(),vans};
+  const payload={v:8,at:new Date().toISOString(),vans};
   localStorage.setItem(LC,JSON.stringify(payload));
   try{
     const r=await fetch(SU,{method:'POST',body:JSON.stringify({action:'save',data:payload})});
@@ -434,148 +407,108 @@ async function saveToDrive(){
 function dirty(){clearTimeout(saveTimer);setDot('syncing');saveTimer=setTimeout(saveToDrive,1500);}
 function manualLoad(){loadFromDrive();}
 
-// Location filter
-function getLocVans(){
-  if(currentLoc==='all')return vans;
-  return vans.filter(v=>(v.location||'').toLowerCase().includes(currentLoc.toLowerCase()));
+function getLocVans(loc){
+  if(!loc||loc==='home'||loc==='report')return vans;
+  return vans.filter(v=>(v.location||'').toLowerCase().includes(loc.toLowerCase()));
 }
 
-function setLoc(loc,el){
+function goLoc(loc,el){
   currentLoc=loc;
+  // Update sidebar
   document.querySelectorAll('.sb-loc').forEach(n=>n.classList.remove('active'));
-  if(el)el.classList.add('active');
-  // Update pills
-  document.querySelectorAll('.loc-pill').forEach(p=>p.classList.toggle('active',p.dataset.loc===loc));
-  // If on home pane, switch to shop
-  if(currentPane==='home')go('shop',null);
-  else render();
-}
-
-// Navigation
-function go(name,el){
-  currentPane=name;
-  // Hide all panes
-  document.querySelectorAll('[id^="pane-"]').forEach(p=>p.style.display='none');
-  const pane=document.getElementById('pane-'+name);
-  if(pane)pane.style.display='block';
-  // Update nav
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelectorAll('[data-p="'+name+'"]').forEach(n=>n.classList.add('active'));
-  if(el)el.classList.add('active');
+  document.querySelectorAll('[data-loc="'+loc+'"]').forEach(n=>n.classList.add('active'));
+  // Show/hide views
+  document.getElementById('view-home').style.display=loc==='home'?'block':'none';
+  document.getElementById('view-location').style.display=(loc!=='home'&&loc!=='report')?'block':'none';
+  document.getElementById('view-report').style.display=loc==='report'?'block':'none';
+  // Mobile back button
+  const mb=document.getElementById('mob-back');if(mb)mb.style.display=loc!=='home'?'block':'none';
+  // Update title
+  const tt=document.getElementById('topbar-title');if(tt)tt.textContent=loc==='home'?'All Locations':loc==='report'?'Report':loc;
+  const mt=document.getElementById('mob-title');if(mt)mt.textContent=loc==='home'?'Fleet Tracker':loc==='report'?'Report':loc;
   render();
 }
 
 function render(){
-  const lv=getLocVans();
-  const shop=lv.filter(v=>!v.pickedUp&&!v.status.startsWith('Auto Integrate')&&v.status!=='Ready for Pickup'&&v.status!=='At Ford – Warranty'&&v.status!=='In Aplena – Warranty'&&v.status!=='Grounded'&&v.status!=='In Progress'&&v.status!=='Recall');
-  const inp=lv.filter(v=>!v.pickedUp&&v.status==='In Progress');
-  const aip=lv.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Pending');
-  const aia=lv.filter(v=>!v.pickedUp&&v.status==='Auto Integrate – Approved');
-  const ford=lv.filter(v=>!v.pickedUp&&v.status==='At Ford – Warranty');
-  const apla=lv.filter(v=>!v.pickedUp&&v.status==='In Aplena – Warranty');
-  const grnd=lv.filter(v=>!v.pickedUp&&v.status==='Grounded');
-  const recl=lv.filter(v=>!v.pickedUp&&v.status==='Recall');
-  const rdy=lv.filter(v=>!v.pickedUp&&v.status==='Ready for Pickup');
-  const pkd=lv.filter(v=>v.pickedUp);
-  const aiT=aip.length+aia.length;const warT=ford.length+apla.length;
-
-  // Update counts
-  const counts={shop:shop.length,inprogress:inp.length,ai:aiT,warranty:warT,ready:rdy.length,grounded:grnd.length,recall:recl.length,picked:pkd.length};
-  Object.entries(counts).forEach(([k,n])=>{
-    const nc=document.getElementById('nc-'+k);if(nc)nc.textContent=n;
-    const bc=document.getElementById('bnc-'+k);if(bc){bc.textContent=n;bc.className='bnav-badge'+(n>0?' show':'');}
-  });
-
-  // Location counts
-  const allActive=vans.filter(v=>!v.pickedUp).length;
-  const lcAll=document.getElementById('lc-all');if(lcAll)lcAll.textContent=allActive;
-  LOCS.forEach(loc=>{
-    const el=document.getElementById('lc-'+loc);
-    if(el)el.textContent=vans.filter(v=>!v.pickedUp&&(v.location||'').toLowerCase().includes(loc.toLowerCase())).length;
-  });
-
-  // Stats bar
-  const sb=document.getElementById('stats-bar');
-  if(sb)sb.innerHTML=`
-    <div class="stat-card"><div class="num">${shop.length}</div><div class="lbl">In Shop</div></div>
-    <div class="stat-card"><div class="num">${inp.length}</div><div class="lbl">In Progress</div></div>
-    <div class="stat-card"><div class="num">${aiT}</div><div class="lbl">Auto Int.</div></div>
-    <div class="stat-card"><div class="num">${warT}</div><div class="lbl">Warranty</div></div>
-    <div class="stat-card"><div class="num">${rdy.length}</div><div class="lbl">Ready</div></div>
-    <div class="stat-card"><div class="num">${grnd.length}</div><div class="lbl">Grounded</div></div>
-    <div class="stat-card"><div class="num">${recl.length}</div><div class="lbl">Recall</div></div>
-    <div class="stat-card"><div class="num">${pkd.length}</div><div class="lbl">Picked Up</div></div>`;
-
-  // Topbar title
-  const tt=document.getElementById('topbar-title');
-  if(tt)tt.textContent=currentLoc==='all'?'Fleet Tracker':currentLoc;
-
-  // Location grid
-  renderLocGrid(shop.length,inp.length,rdy.length,allActive,pkd.length);
-
-  // Fill lists
   const im=new Map(vans.map((v,i)=>[v,i]));
-  const fill=(id,list)=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='';if(!list.length){el.innerHTML='<div class="empty">None</div>';return;}const g=document.createElement('div');g.className='cards-grid';list.forEach(v=>g.appendChild(mkCard(v,im.get(v))));el.appendChild(g);};
-  fill('list-shop',shop);fill('list-inprogress',inp);fill('list-aip',aip);fill('list-aia',aia);
-  fill('list-ford',ford);fill('list-aplena',apla);fill('list-grounded',grnd);fill('list-recall',recl);fill('list-ready',rdy);fill('list-picked',pkd);
+  // Update sidebar counts
+  const allActive=vans.filter(v=>!v.pickedUp).length;
+  const lcHome=document.getElementById('lc-home');if(lcHome)lcHome.textContent=allActive;
+  LOCS.forEach(loc=>{
+    const count=vans.filter(v=>!v.pickedUp&&(v.location||'').toLowerCase().includes(loc.toLowerCase())).length;
+    const el=document.getElementById('lc-'+loc);if(el)el.textContent=count;
+    const bc=document.getElementById('bnc-'+loc);if(bc){bc.textContent=count;bc.className='bnav-badge'+(count>0?' show':'');}
+  });
 
-  // Loc pills
-  renderLocPills();
+  if(currentLoc==='home'){
+    renderHome(im);
+  } else if(currentLoc==='report'){
+    // report rendered on demand
+  } else {
+    renderLocation(currentLoc,im);
+  }
   checkDups();
 }
 
-function renderLocGrid(shopN,inpN,rdyN,activeN,pkdN){
+function renderHome(im){
   const grid=document.getElementById('loc-grid');if(!grid)return;
   grid.innerHTML='';
-  // All locations card
-  const allC=document.createElement('div');
-  allC.className='loc-card'+(currentLoc==='all'?' active':'');
-  allC.innerHTML=`<div class="loc-card-name">🏢 All Locations</div><div class="loc-card-count">${activeN} active · ${pkdN} picked up</div>
-  <div class="loc-card-stats">
-    <span class="loc-stat amber">${shopN} in shop</span>
-    ${inpN>0?`<span class="loc-stat amber">${inpN} in progress</span>`:''}
-    ${rdyN>0?`<span class="loc-stat green">${rdyN} ready</span>`:''}
-  </div>`;
-  allC.onclick=()=>{setLoc('all',document.querySelector('[data-loc="all"]'));go('shop',null);};
-  grid.appendChild(allC);
-
   LOCS.forEach(loc=>{
     const lv=vans.filter(v=>(v.location||'').toLowerCase().includes(loc.toLowerCase()));
     const active=lv.filter(v=>!v.pickedUp);
-    const inprog=active.filter(v=>v.status==='In Progress').length;
-    const ready=active.filter(v=>v.status==='Ready for Pickup').length;
+    const inp=active.filter(v=>v.status==='In Progress').length;
+    const rdy=active.filter(v=>v.status==='Ready for Pickup').length;
+    const grnd=active.filter(v=>v.status==='Grounded').length;
     const card=document.createElement('div');
-    card.className='loc-card'+(currentLoc===loc?' active':'');
-    card.innerHTML=`<div class="loc-card-name">📍 ${loc}</div>
-    <div class="loc-card-count">${active.length} active van${active.length!==1?'s':''}</div>
-    <div class="loc-card-stats">
-      ${active.length>0?`<span class="loc-stat amber">${active.length} active</span>`:'<span class="loc-stat">Empty</span>'}
-      ${inprog>0?`<span class="loc-stat amber">${inprog} in progress</span>`:''}
-      ${ready>0?`<span class="loc-stat green">${ready} ready</span>`:''}
+    card.className='loc-home-card';
+    card.innerHTML=`<div class="loc-home-card-name">📍 ${loc}</div>
+    <div class="loc-home-card-count">${active.length} active van${active.length!==1?'s':''}</div>
+    <div class="loc-home-card-pills">
+      ${active.length===0?'<span class="lhpill">Empty</span>':''}
+      ${active.length>0?`<span class="lhpill amber">${active.length} active</span>`:''}
+      ${inp>0?`<span class="lhpill amber">${inp} in progress</span>`:''}
+      ${rdy>0?`<span class="lhpill green">${rdy} ready</span>`:''}
+      ${grnd>0?`<span class="lhpill red">${grnd} grounded</span>`:''}
     </div>`;
-    card.onclick=()=>{setLoc(loc,document.querySelector('[data-loc="'+loc+'"]'));go('shop',null);};
+    card.onclick=()=>goLoc(loc,document.querySelector('[data-loc="'+loc+'"]'));
     grid.appendChild(card);
   });
 }
 
-function renderLocPills(){
-  const pills=document.getElementById('loc-pills');if(!pills)return;
-  if(pills.children.length>0)return; // already rendered
-  ['all',...LOCS].forEach(loc=>{
-    const p=document.createElement('button');
-    p.className='btn-sm loc-pill'+(currentLoc===loc?' dark':'');
-    p.dataset.loc=loc;p.textContent=loc==='all'?'All':loc;
-    p.style.cssText='white-space:nowrap;font-size:11px;padding:4px 10px;';
-    p.onclick=()=>setLoc(loc,document.querySelector('[data-loc="'+loc+'"]'));
-    pills.appendChild(p);
+function renderLocation(loc,im){
+  const view=document.getElementById('view-location');if(!view)return;
+  const lv=getLocVans(loc);
+  view.innerHTML='';
+  // Actions row
+  const ar=document.createElement('div');ar.className='action-row';
+  ar.innerHTML=`<button class="action-btn primary" onclick="openDropoff()">+ New Drop-off</button>
+    <button class="action-btn" onclick="openPickup()">Mark Picked Up</button>`;
+  view.appendChild(ar);
+
+  let hasContent=false;
+  SECTIONS.forEach(sec=>{
+    const filtered=lv.filter(sec.filter);
+    if(!filtered.length)return;
+    hasContent=true;
+    const section=document.createElement('div');section.className='status-section';
+    const hdr=document.createElement('div');hdr.className='status-section-hdr';
+    hdr.innerHTML=`<span class="icon">${sec.icon}</span><span class="title">${sec.label}</span><span class="count">${filtered.length}</span>`;
+    section.appendChild(hdr);
+    const grid=document.createElement('div');grid.className='cards-grid';
+    filtered.forEach(v=>grid.appendChild(mkCard(v,im.get(v))));
+    section.appendChild(grid);
+    view.appendChild(section);
   });
+  if(!hasContent){
+    view.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;">No active vans at this location</div>';
+  }
 }
 
 function mkCard(v,i){
   const d=document.createElement('div');d.className='van-card';
   const lbl=v.isVin?'...'+v.id.slice(-8):'#'+v.id;
-  const loc=v.location?`<div class="card-loc">📍 ${v.location}${v.pullIn?' · '+v.pullIn:''}</div>`:'';
+  const loc=v.location&&currentLoc==='home'?`<div class="card-loc">📍 ${v.location}${v.pullIn?' · '+v.pullIn:''}</div>`:(v.pullIn?`<div class="card-loc">${v.pullIn}</div>`:'');
   const nt=v.notes?`<div class="card-loc" style="color:var(--text2);margin-top:2px;">${v.notes}</div>`:'';
   if(v.pickedUp){
     d.innerHTML=`<div class="card-top"><span class="card-id" title="${v.id}">${lbl}</span><span class="badge b-pickedup">Picked Up</span></div>
@@ -592,12 +525,11 @@ function mkCard(v,i){
   return d;
 }
 
-// Drop-off
 function openDropoff(){
   document.getElementById('do-id').value='';document.getElementById('do-date').value=today();
   document.getElementById('do-issue').value='';document.getElementById('do-type').value='last4';
   const sel=document.getElementById('do-loc');
-  sel.value=currentLoc!=='all'?currentLoc:'';
+  sel.value=(currentLoc!=='home'&&currentLoc!=='report')?currentLoc:'';
   openModal('modal-dropoff');
 }
 function confirmDropoff(){
@@ -606,13 +538,10 @@ function confirmDropoff(){
   vans.unshift({id,isVin:document.getElementById('do-type').value==='vin',issue:document.getElementById('do-issue').value.trim(),status:'New Drop Off',aiStatus:'',location:loc,pullIn:dt?fmtD(dt):'',partsOrdered:'',waitingOn:'',tanzNotes:'',notes:'',pickedUp:false,pickupDate:'',pickupBy:'',dashClear:false,pickupNotes:''});
   closeModal('modal-dropoff');dirty();render();
 }
-
-// Pickup
 function openPickup(){
   const sel=document.getElementById('pu-van');sel.innerHTML='';
-  const lv=getLocVans();
-  const active=lv.filter(v=>!v.pickedUp);
-  active.forEach(v=>{const i=vans.indexOf(v);const o=document.createElement('option');o.value=i;o.textContent=(v.isVin?'VIN ':'#')+v.id+(v.issue?' – '+v.issue.slice(0,26):'')+(v.location?' ('+v.location+')':'');sel.appendChild(o);});
+  const active=vans.filter(v=>!v.pickedUp);
+  active.forEach(v=>{const i=vans.indexOf(v);const o=document.createElement('option');o.value=i;o.textContent=(v.isVin?'VIN ':'#')+v.id+(v.issue?' – '+v.issue.slice(0,24):'')+(v.location?' ('+v.location+')':'');sel.appendChild(o);});
   if(!sel.options.length){alert('No active vans.');return;}
   document.getElementById('pu-date').value=today();document.getElementById('pu-by').value='';document.getElementById('pu-notes').value='';
   ['cel','abs','tpms','oil','bat','trns','airbag','brk','4wd','other'].forEach(k=>{const e=document.getElementById('c-'+k);if(e)e.checked=false;});
@@ -625,8 +554,6 @@ function confirmPickup(){
   vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:dt?fmtDL(dt):'',pickupBy:document.getElementById('pu-by').value.trim(),dashClear:true,pickupNotes:document.getElementById('pu-notes').value.trim()};
   closeModal('modal-pickup');dirty();render();
 }
-
-// Van modal
 function openVanModal(idx){
   const v=vans[idx];const lbl=(v.isVin?'...'+v.id.slice(-8):'#'+v.id);const isAI=v.status.startsWith('Auto Integrate');
   const sheet=document.getElementById('van-sheet');
@@ -640,7 +567,7 @@ function openVanModal(idx){
   <div id="ai-wrap" style="${isAI?'':'display:none'}">
     <div class="ai-box"><div class="ai-box-label">Auto Integrate Status</div>
       <div class="ai-toggle">
-        <button id="ai-p" class="${v.aiStatus==='pending'?'ai-pending':''}" onclick="setAI(${idx},'pending')">Pending Approval</button>
+        <button id="ai-p" class="${v.aiStatus==='pending'?'ai-pending':''}" onclick="setAI(${idx},'pending')">Pending</button>
         <button id="ai-a" class="${v.aiStatus==='approved'?'ai-approved':''}" onclick="setAI(${idx},'approved')">Approved</button>
       </div>
     </div>
@@ -677,14 +604,13 @@ function moveStatus(idx,status){vans[idx].status=status;closeModal('modal-van');
 function qPickup(idx){
   const by=prompt('Picked up by:','');if(by===null)return;
   if(!confirm('Confirm all dashboard lights are OFF?')){alert('All lights must be clear.');return;}
-  vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),pickupBy:by,dashClear:true,pickupNotes:''};
+  vans[idx]={...vans[idx],pickedUp:true,status:'Picked Up',pickupDate:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),pickupBy:by,dashClear:true};
   closeModal('modal-van');dirty();render();
 }
 function delVan(idx){if(confirm('Remove this van?')){vans.splice(idx,1);closeModal('modal-van');dirty();render();}}
 function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
 function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
 
-// Search
 function openSearch(q){
   const ov=document.getElementById('search-overlay');ov.classList.add('open');
   const inp=document.getElementById('srch-inp');inp.value=q||'';inp.focus();
@@ -694,30 +620,29 @@ function closeSearch(){document.getElementById('search-overlay').classList.remov
 window.addEventListener('popstate',()=>{if(document.getElementById('search-overlay').classList.contains('open'))closeSearch();});
 function doSearch(q){
   const term=q.trim().toLowerCase();const res=document.getElementById('search-results');const cnt=document.getElementById('search-count');
-  if(!term){res.innerHTML='<div class="empty">Type a VIN or van number</div>';cnt.textContent='';return;}
+  if(!term){res.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);">Type a VIN or van number</div>';cnt.textContent='';return;}
   const im=new Map(vans.map((v,i)=>[v,i]));
   const found=vans.filter(v=>v.id.toLowerCase().includes(term)||(v.location||'').toLowerCase().includes(term));
   cnt.style.cssText='padding:7px 14px 0;font-size:11px;color:var(--text3);';cnt.textContent=found.length+' result'+(found.length!==1?'s':'');
-  res.innerHTML='';if(!found.length){res.innerHTML='<div class="empty">No vans found</div>';return;}
+  res.innerHTML='';if(!found.length){res.innerHTML='<div style="text-align:center;padding:40px;color:var(--text3);">No vans found</div>';return;}
   found.forEach(v=>res.appendChild(mkCard(v,im.get(v))));
 }
 
-// Duplicates
 function findDups(){const ss=vans.filter(v=>!v.isVin);const fs=vans.filter(v=>v.isVin);const dups=[];ss.forEach(s=>{fs.filter(f=>f.id.slice(-4)===s.id).forEach(f=>dups.push({s,si:vans.indexOf(s),f,fi:vans.indexOf(f)}));});return dups;}
 function checkDups(){const dups=findDups();const b=document.getElementById('dup-banner');if(dups.length){document.getElementById('dup-msg').textContent=`${dups.length} duplicate VIN${dups.length>1?'s':''} detected`;b.classList.add('show');}else b.classList.remove('show');}
 function openDupModal(){
   const dups=findDups();const list=document.getElementById('dup-list');list.innerHTML='';
-  if(!dups.length){list.innerHTML='<div class="empty">No duplicates</div>';openModal('modal-dup');return;}
+  if(!dups.length){list.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);">No duplicates</div>';openModal('modal-dup');return;}
   dups.forEach(({s,si,f,fi})=>{const d=document.createElement('div');d.style.cssText='background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:9px;';d.innerHTML=`<div style="font-size:12px;font-weight:600;margin-bottom:4px;">#${s.id} ↔ ${f.id}</div><div style="font-size:11px;color:var(--text2);margin-bottom:8px;">Last-4: <strong>${s.status}</strong> | Full: <strong>${f.status}</strong></div><div style="display:flex;gap:6px;"><button class="btn-sm dark" style="flex:1;" onclick="kL4(${si},${fi})">Keep Last-4</button><button class="btn-sm" style="flex:1;" onclick="kFV(${si},${fi})">Keep Full VIN</button></div>`;list.appendChild(d);});openModal('modal-dup');
 }
 function kL4(si,fi){vans.splice(fi,1);closeModal('modal-dup');dirty();render();setTimeout(()=>{if(findDups().length)openDupModal();},300);}
 function kFV(si,fi){vans.splice(si,1);closeModal('modal-dup');dirty();render();setTimeout(()=>{if(findDups().length)openDupModal();},300);}
 
-// Report
 function genReport(){
   const date=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-  const line='─'.repeat(36);const lv=getLocVans();
-  let out=`Element Fleet – Van Status Update\n${currentLoc==='all'?'All Locations':currentLoc}\n${date}\n${line}`;
+  const line='─'.repeat(36);
+  const lv=currentLoc==='report'?vans:getLocVans(currentLoc);
+  let out=`Element Fleet – Van Status Update\nAll Locations\n${date}\n${line}`;
   const active=lv.filter(v=>!v.pickedUp);const picked=lv.filter(v=>v.pickedUp);
   if(active.length){out+='\n\nACTIVE VANS';active.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id}\nStatus: ${v.status}`;if(v.location)out+=`\nLocation: ${v.location}`;if(v.issue)out+=`\nIssue: ${v.issue}`;if(v.status.startsWith('Auto Integrate'))out+=`\nAI: ${v.aiStatus==='approved'?'Approved':'Pending'}`;if(v.pullIn)out+=`\nPull-in: ${v.pullIn}`;if(v.tanzNotes)out+=`\nTech: ${v.tanzNotes}`;if(v.partsOrdered)out+=`\nParts: ${v.partsOrdered}`;if(v.waitingOn)out+=`\nWaiting: ${v.waitingOn}`;if(v.notes)out+=`\nNotes: ${v.notes}`;out+=`\n${line}`;});}
   if(picked.length){out+='\n\nPICKED UP';picked.forEach(v=>{out+=`\n\n${v.isVin?'VIN':'Van'}: ${v.id}\nPickup: ${v.pickupDate||'—'}\nBy: ${v.pickupBy||'—'}\nDash: All clear\n${line}`;});}
@@ -731,8 +656,6 @@ function fmtD(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{mont
 function fmtDL(s){return new Date(s+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 
-// Init - start on shop pane
-go('shop',document.querySelector('[data-p="shop"]'));
 loadFromDrive();
 </script>
 </body>
